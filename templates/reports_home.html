@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Reports - gr_desk{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="logo">
+        <img src="https://raw.githubusercontent.com/GoobyFRS/gr_desk/refs/heads/main/static/gr_desk-color.webp" alt="gr_desk Logo">
+    </div>
+    <h2>gr_desk Reporting</h2>
+    <div class="kpi-grid">        
+        <div class="kpi-card">
+            <h3>Open</h3>
+            <div class="kpi-value">{{ open_tickets }}</div>
+        </div>
+        <div class="kpi-card">
+            <h3>In-Progress</h3>
+            <div class="kpi-value">{{ in_progress_tickets }}</div>
+        </div>
+        <div class="kpi-card">
+            <h3>Closed</h3>
+            <div class="kpi-value">{{ closed_tickets }}</div>
+        </div>
+    </div>
+
+    <div class="ticket-details">
+        <h3>Summary</h3>
+        <ul class="ticket-list">
+            <li><strong>Lifetime Tickets:</strong> {{ total_tickets }}</li>
+            <li><strong>Lifetime Closed:</strong> {{ closed_tickets }}</li>
+            <li><strong>Tickets Open:</strong> {{ open_tickets }}</li>
+            <li><strong>Tickets In-Progress:</strong> {{ in_progress_tickets }}</li>
+        </ul>
+
+        <h3>Trends over Time</h3>
+        <ul class="ticket-list">
+            <li><strong>Last 60 Days:</strong> {{ last_60_days }}</li>
+            <li><strong>Last 30 Days:</strong> {{ last_30_days }}</li>
+            <li><strong>Last 14 Days:</strong> {{ last_14_days }}</li>
+            <li><strong>Last 7 Days:</strong> {{ last_7_days }}</li>
+        </ul>
+
+        <div style="margin-top:12px">
+            <a href="{{ url_for('dashboard') }}" class="btn">Back to Dashboard</a>
+            <a href="{{ url_for('reports.export_tickets_csv') }}" class="btn btn-secondary">Export CSV Report</a>
+        </div>
+
+        <p class="footer-text">©2025 gr_desk, FOSS created by GoobyFRS | Logged In as: {{ loggedInTech }} | BuildID: {{ BUILDID }}</p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Employee Management - gr_desk{% endblock %}
+
+{% block content %}
+<div class="container">
+        <div class="logo">
+            <img src="https://raw.githubusercontent.com/GoobyFRS/gr_desk/refs/heads/main/static/gr_desk-color.webp" alt="gr_desk Logo">
+        </div>
+        <h2>Employee Management</h2>
+
+        <div class="ticket-details">
+            <a href="/hrm/submit-new" class="btn">Hire New Employee</a>
+
+            <h3 style="margin-top:18px">Employees</h3>
+            <table class="ticket-table">
+        <thead>
+            <tr>
+                <th>Employee ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Department</th>
+                <th>Hire Date</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for emp in employees %}
+            <tr>
+                <td>{{ emp.employee_id }}</td>
+                <td>{{ emp.employee_first_name }} {{ emp.employee_last_name }}</td>
+                <td>{{ emp.employee_contact_email }}</td>
+                <td>{{ emp.employee_role }}</td>
+                <td>{{ emp.assigned_business_unit }}</td>
+                <td>{{ emp.employee_hire_date }}</td>
+                <td>{% if emp.employee_termination_date %}Terminated{% else %}Active{% endif %}</td>
+                <td><a href="/hrm/profile/{{ emp.uuid }}" class="btn btn-sm">View</a></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8" class="text-center">No employees</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+            <a href="/hrm/export/csv" class="btn btn-secondary" style="margin-top:12px">Export to CSV</a>
+            <p class="footer-text">©2025 gr_desk, FOSS created by GoobyFRS | Logged In as: {{ loggedInTech }}</p>
+        </div>
+    </div>
+{% endblock %}

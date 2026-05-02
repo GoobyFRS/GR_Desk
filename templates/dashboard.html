@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="static/favicon.ico"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Matt Faulkner">
+    <meta name="robots" content="noindex, nofollow"> <!--Discourage Search Engine Indexing of this page-->
+    <meta name="theme-color" content="#284389"> <!-- Mobile Browser stylized address bar.-->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- Force IE to use latest rendering engine available.-->
+    <meta http-equiv="refresh" content="300"> <!-- 5 Minute Page Refresh -->
+    <link rel="preconnect" href="https://fonts.bunny.net/css">
+    <link rel="preconnect" href="https://fonts.bunny.net/css" crossorigin>
+    <script src="{{ url_for('static', filename='helpdesk.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- Performance Enhancements -->
+    <title>gr_desk - Technician Dashboard</title>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="https://raw.githubusercontent.com/GoobyFRS/gr_desk/refs/heads/main/static/gr_desk-color.webp" alt=" gr_desk Logo">
+        </div>
+        <h2>Technician Dashboard</h2>
+        <ul class="ticket-list">
+            {% for ticket in tickets %}
+                <li>
+                    <a href="{{ url_for('itsm_core.itsm_console', ticket_number=ticket.ticket_number) }}">
+                        {{ ticket.ticket_number }} - {{ ticket.ticket_subject }} ({{ ticket.ticket_status }})
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+        <!-- Close Ticket button -->
+        <div>
+            <input type="text" id="ticketIdInput" placeholder="Close Ticket Number">
+            <button class="submit-btn" button onclick="closeTicket()">Close Ticket</button>
+        </div>
+        <br>
+        <!-- Technician logout button -->
+        <form action="{{ url_for('logout') }}" method="GET">
+        <button type="submit" class="submit-btn">Logout</button>
+        </form>
+        <!-- Footer Text -->
+        <p class="footer-text">©2025 gr_desk, FOSS created by GoobyFRS | Logged In as: {{ loggedInTech }} | BuildID: {{ BUILDID }} |
+            <br>
+            <a href="{{ url_for('reports.reports_home') }}">Reporting Home</a>
+        </p>
+    </div>
+</body>
+</html>

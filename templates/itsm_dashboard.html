@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}ITSM Dashboard - gr_desk{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Service Desk Dashboard</h1>
+    <p>Welcome, <strong>{{ loggedInTech }}</strong></p>
+
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <h3>{{ tickets|length }}</h3>
+            <p>Open Tickets</p>
+        </div>
+        <div class="stat-card">
+            <h3>{{ tickets|selectattr('ticket_status', 'equalto', 'in_progress')|list|length }}</h3>
+            <p>In Progress</p>
+        </div>
+        <div class="stat-card">
+            <h3>{{ tickets|selectattr('ticket_status', 'equalto', 'new')|list|length }}</h3>
+            <p>New Tickets</p>
+        </div>
+    </div>
+
+    <h2>Recent Tickets</h2>
+    <table class="ticket-table">
+        <thead>
+            <tr>
+                <th>Ticket Number</th>
+                <th>Subject</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Created</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ticket in tickets|slice(10) %}
+            <tr>
+                <td><a href="/itsm/console/{{ ticket.ticket_number }}">{{ ticket.ticket_number }}</a></td>
+                <td>{{ ticket.ticket_subject }}</td>
+                <td><span class="status-badge status-{{ ticket.ticket_status }}">{{ ticket.ticket_status }}</span></td>
+                <td>{{ ticket.ticket_urgency }}</td>
+                <td>{{ ticket.ticket_created_timestamp }}</td>
+                <td><a href="/itsm/console/{{ ticket.ticket_number }}">Open</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Queue Management</h2>
+    <div class="queue-links">
+        <a href="/itsm/queue/triage" class="btn btn-primary">Triage Queue</a>
+        <a href="/itsm/queue/support" class="btn btn-primary">Support Queue</a>
+        <a href="/itsm/queue/billing" class="btn btn-primary">Billing Queue</a>
+    </div>
+</div>
+{% endblock %}

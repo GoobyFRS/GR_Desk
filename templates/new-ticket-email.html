@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <style>
+    body {
+      background-color: #ffffff;
+      margin: 0 auto;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    }
+
+    #hidden-message {
+      font-size: 1px;
+      color: #ffffff;
+      line-height: 1px;
+      max-height: 0;
+      visibility: hidden;
+    }
+
+    table {
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .logo img {
+      display: block;
+      outline: none;
+      border: none;
+      text-decoration: none;
+    }
+
+    h1 {
+      color: #284389;
+      font-size: 16px;
+      font-weight: 700;
+      margin: 10px 0;
+      padding: 0;
+      line-height: 42px;
+    }
+
+    p {
+      font-size: 14px;
+      line-height: 28px;
+      margin: 4px 0;
+      color: #000;
+    }
+
+    .footer-text {
+      font-size: 12px;
+      line-height: 15px;
+      margin: 16px 0;
+      color: #b7b7b7;
+      text-align: left;
+    }
+
+    .small-text {
+      font-size: 12px;
+      margin: 16px 0;
+      color: #000;
+    }
+
+    a {
+      color: #A8C0E2;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <center>
+    <div id="hidden-message">New Ticket Created</div>
+    <table class="container" role="presentation" border="0" cellspacing="0" cellpadding="0">
+  </center>
+    <tr>
+      <td>
+        <table role="presentation" border="0" cellspacing="0" cellpadding="0" width="100%">
+          <tr>
+            <td class="logo">
+              <img src="https://raw.githubusercontent.com/GoobyFRS/gr_desk/refs/heads/main/static/gr_desk-color.webp" 
+                width="200" height="90" alt="gr_desk Logo"
+                style="display: block; max-width: 100%; height: auto;">
+            </td>
+          </tr>
+        </table>
+
+      <h1 style="font-family: Arial, sans-serif; color: #284389; font-size: 16px; font-weight: bold; line-height: 42px;">
+        Ticket Created: {{ticket.ticket_number}}
+      </h1>
+        <p>Howdy Customer! <br>Your Service Desk Ticket {{ticket.ticket_number}} has been created. It has a status of {{ticket.ticket_status}}. You provided the following details... {{ticket.ticket_message}}.<br>A Technician will contact you shortly.</p>
+        <p class="small-text">Respectfully,<br>Service Desk</p>
+        <table role="presentation" border="0" cellspacing="0" cellpadding="0">
+          <tr>
+            <td>
+              <a target="_blank" href="https://github.com/GoobyFRS" rel="noopener noreferrer">GitHub</a> |
+              <a target="_blank" href="https://discord.gg/ge6necsyxR" rel="noopener noreferrer">BirdHouse Discord Server</a> |
+              <p class="footer-text">
+                This was an automated message sent by the gr_desk Service Desk. If you are not the intended recipient, please let us know and we will ensure you are not contacted by our system again. 
+              </p>
+              <p class="footer-text" style="margin-bottom: 50px;">
+              ©2025 gr_desk, FOSS created by <a href="https://github.com/GoobyFRS">GoobyFRS</a>
+            </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

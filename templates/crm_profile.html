@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}{{ customer.customer_first_name }} - Customer Profile{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>{{ customer.customer_first_name }} {{ customer.customer_last_name }}</h1>
+    <p><strong>Customer ID:</strong> {{ customer.customer_id }}</p>
+
+    <div class="profile-info">
+        <p><strong>Username:</strong> {{ customer.customer_username }}</p>
+        <p><strong>In-Game Username:</strong> {{ customer.customer_ingame_username }}</p>
+        <p><strong>Email:</strong> {{ customer.customer_contact_email }}</p>
+        <p><strong>Account Status:</strong> {{ customer.customer_account_status }}</p>
+        <p><strong>Fraud Risk Level:</strong> {{ customer.customer_fraud_risk }}</p>
+        <p><strong>VIP Status:</strong> {% if customer.customer_vip_status %}Yes{% else %}No{% endif %}</p>
+        <p><strong>Account Created:</strong> {{ customer.customer_account_created_date }}</p>
+        <p><strong>Account Value:</strong> ${{ customer.customer_account_value }}</p>
+        <p><strong>Content Creator:</strong> {% if customer.is_content_creator %}Yes{% else %}No{% endif %}</p>
+    </div>
+
+    <div class="profile-tickets">
+        <h2>Support Tickets</h2>
+        <p>Total tickets: {{ customer.customer_helpdesk_tickets|length }}</p>
+    </div>
+
+    <a href="/crm/profile/{{ customer.uuid }}/edit" class="btn btn-primary">Edit Customer</a>
+    <a href="/crm/dashboard" class="btn btn-secondary">Back to Customers</a>
+</div>
+{% endblock %}

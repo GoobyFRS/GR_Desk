@@ -1,0 +1,25 @@
+[
+    {
+        "uuid": "example-uuid-123",
+        "ticket_number": "TKT-2025-0001",
+        "ticket_status": "new",
+        "requestor_name": "Mom",
+        "requestor_username": "",
+        "requestor_email": "mom@example.com",
+        "ticket_type": "Request",
+        "ticket_subject": "First Ticket",
+        "ticket_body": "Can you help me with my computer issue?",
+        "ticket_impact": 3,
+        "ticket_urgency": 4,
+        "escalation_level": 0,
+        "assigned_team_queue": "support",
+        "assigned_support_person": null,
+        "ticket_worknotes": [],
+        "ticket_created_timestamp": "2025-02-08 08:51:40",
+        "ticket_escalation_timestamp": null,
+        "ticket_closed_timestamp": null,
+        "ticket_acknowledged_timestamp": null,
+        "requestor_vip_status": false,
+        "ticket_overdue": false
+    }
+]

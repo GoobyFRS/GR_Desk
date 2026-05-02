@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Management - gr_desk{% endblock %}
+
+{% block content %}
+<div class="container">
+        <div class="logo">
+            <img src="https://raw.githubusercontent.com/GoobyFRS/gr_desk/refs/heads/main/static/gr_desk-color.webp" alt="gr_desk Logo">
+        </div>
+        <h2>Customer Management</h2>
+
+        <div class="ticket-details">
+            <a href="/crm/submit-new" class="btn">Add New Customer</a>
+
+            <h3 style="margin-top:18px">Customers</h3>
+            <table class="ticket-table">
+        <thead>
+            <tr>
+                <th>Customer ID</th>
+                <th>Username</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Fraud Risk</th>
+                <th>VIP</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer in customers %}
+            <tr>
+                <td>{{ customer.customer_id }}</td>
+                <td>{{ customer.customer_username }}</td>
+                <td>{{ customer.customer_first_name }} {{ customer.customer_last_name }}</td>
+                <td>{{ customer.customer_contact_email }}</td>
+                <td>{{ customer.customer_account_status }}</td>
+                <td>{{ customer.customer_fraud_risk }}</td>
+                <td>{% if customer.customer_vip_status %}✓{% endif %}</td>
+                <td><a href="/crm/profile/{{ customer.uuid }}" class="btn btn-sm">View</a></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8" class="text-center">No customers yet</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+            <a href="/crm/export/csv" class="btn btn-secondary" style="margin-top:12px">Export to CSV</a>
+            <p class="footer-text">©2025 gr_desk, FOSS created by GoobyFRS | Logged In as: {{ loggedInTech }}</p>
+        </div>
+    </div>
+{% endblock %}

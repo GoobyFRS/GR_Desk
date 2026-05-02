@@ -1,0 +1,37 @@
+# CHANGELOG
+
+**Nov.29.2025-1:** CHANGELOG has not been updated since my return to the project. I expect to leverage it again at some point in the future, but for now my commit notes and my own thoughts are what is keeping track for now. Peace, Love, and Happiness my friends! 
+
+**Mar.13.2025-1:** Patching an issue with logging and setup the basic framework for a visual confirmation message on ticket submission.
+
+**Mar.06.2025-1:** Implement standard logging and Cloudflare Turnstile spam prevention.
+
+**Feb.28.2025-1:** Implementing a method of posting notes to a ticket in Ticket Commander.
+
+**Feb.27.2025-1:** Implement "Logged In As" and other navigation links.
+
+**Feb.13.2025-1:** Implementing support for Discord webhook notifications.
+
+**Feb.5.2025-3:** HTML5 adjustments suggested by the ChatGPT when asked how to follow HTML5 standard best practices.
+
+**Feb.5.2025-2:** Custom 400, 403, and 404s implemented. JavaScript was cleaned up with help from ChatGPT. Additional code notes.
+
+**Feb.5.2025-1:** Official gr_desk project branding implemented. Personal branding removed.
+
+**Jan.28.2025-1:** File locking support on Unix systems. File locking support on Windows will be implemented prior to Production v1.0. Ticket-Commander pages now have minor responsiveness with some button colors.
+
+**Jan.24.2025-2:** Resolved minor bugs and unexpected ticket-commander behavior.
+
+**Jan.24.2025-1:** Ticket Commander/Ticket View implemented but it is buggy.
+
+**Jan.22.2025-1:** Now supporting multiple employees to have access. Found an issue where a 404 was provided instead of the correct HTTP 403.
+
+**Jan.21.2025-1:** Initial email now sends an HTML template including TKT_ID, Status, and the user provided notes as a reminder.
+
+**Jan.20.2025-3:** locally stored GoobyFRS Branding, removing dependancy on my personal Object Storage. Disabing Debug mode out of the box for a leaner runtime.
+
+**Jan.20.2025-2:** Morning patch - Close Ticket button design matches my standards. Code has been further commented.
+
+**Jan.20.2025-1:** Basic implementation for closing tickets. Not production ready. Bedtime.
+
+**Jan.18.2025-1:** Secure cookie encoding. Add gunicorn to dependancies.

@@ -1,0 +1,12 @@
+[
+    {
+        "tech_username": "johndoe",
+        "tech_authcode": "NoPassword2026",
+        "tech_type": "Technician"
+    },
+    {
+        "tech_username": "anotheruser",
+        "tech_authcode": "someOtherPassw0rd",
+        "tech_type": "DISABLED"
+    }
+]
