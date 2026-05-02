@@ -3,13 +3,13 @@
 # ==========================================
 # Core Files
 tickets_file: "./my_data/tickets.json"
-employee_file: "./my_data/employees.json"
+employee_file: "./my_data/employee.json"
 changes_file: "./my_data/changes.json"
 customers_file: "./my_data/customers.json"
 
 # Logging
 logging:
-  level: "INFO"         # Valid: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  level: "DEBUG"         # Valid: DEBUG, INFO, WARNING, ERROR, CRITICAL
   file: "./my_data/gr_desk.log" # Relative or absolute path
 
 # Email System

@@ -12,17 +12,17 @@
     <!-- Social Media Preview -->
     <meta property="og:title" content="gr_desk - Submit a Ticket">
     <meta property="og:description" content="gr_desk, a Databaseless Service Desk for SMBs.">
-    <meta property="og:image" content="https://raw.githubusercontent.com/GoobyFRS/gr_desk/refs/heads/main/static/gr_desk-color.webp">
+    <meta property="og:image" content="https://raw.githubusercontent.com/GoobyFRS/gr_desk/refs/heads/main/static/gr_desk-color.png">
     <meta property="og:url" content="https://support.mattfaulkner.net/">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="gr_desk - Submit a Ticket">
     <meta name="twitter:description" content="gr_desk, a Databaseless Service Desk for SMBs.">
-    <meta name="twitter:image" content="https://raw.githubusercontent.com/GoobyFRS/gr_desk/refs/heads/main/static/gr_desk-color.webp">
+    <meta name="twitter:image" content="https://raw.githubusercontent.com/GoobyFRS/gr_desk/refs/heads/main/static/gr_desk-color.png">
 
     <!-- Performance Enhancements -->
     <link rel="preconnect" href="https://fonts.bunny.net/css">
     <link rel="preconnect" href="https://fonts.bunny.net/css" crossorigin>
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <!-- <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script> -->
     <!-- Local CSS and JavaScript Imports-->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="{{ url_for('static', filename='helpdesk.js') }}"></script>
@@ -34,7 +34,7 @@
 <body>
     <div class="container">
         <div class="logo">
-            <img src="https://raw.githubusercontent.com/GoobyFRS/gr_desk/refs/heads/main/static/gr_desk-color.webp" alt="gr_desk Logo">
+            <img src="https://raw.githubusercontent.com/GoobyFRS/gr_desk/refs/heads/main/static/gr_desk-color.png" alt="gr_desk Logo">
         </div>
         <h2>Submit a Ticket</h2>
         <form method="post">
@@ -42,28 +42,13 @@
             <input type="text" id="name" name="requestor_name" placeholder="Jeremy Clarkson" minlength="2" maxlength="24" autocomplete="name" required>
 
             <label for="email">Your Email:</label>
-            <input type="email" id="email" name="requestor_email" placeholder="richard.hammond@example.com" title="Provide a VALID contact address." minlength="6" maxlength="48" autocomplete="email" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" required>
+            <input type="email" id="email" name="requestor_email" placeholder="richard.hammond@example.com" title="Provide a VALID contact address." minlength="6" maxlength="48" autocomplete="email" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}">
 
             <label for="subject">Ticket Title:</label>
             <input type="text" id="subject" name="ticket_subject" placeholder="Replace Tires for Captain Slow" minlength="4" maxlength="48" required>
 
             <label for="message">Ticket Message:</label>
             <textarea id="message" name="ticket_message" placeholder="Please provide some detail in order to submit your request." minlength="4" maxlength="512" required></textarea>
-
-            <label for="ticket_impact">Ticket Impact:</label>
-            <select id="type" name="ticket_impact" required>
-                <option value="Low Impact">Low</option>
-                <option value="Medium Impact">Medium</option>
-                <option value="High Impact">High</option>
-            </select>
-
-            <label for="ticket_urgency">Ticket Urgency:</label>
-            <select id="type" name="ticket_urgency" required>
-                <option value="Planning">Planning</option>
-                <option value="Low Urgency">Low</option>
-                <option value="Medium Urgency">Medium</option>
-                <option value="High Urgency">High</option>
-            </select>
 
             <label for="type">Ticket Type:</label>
             <select id="type" name="request_type" required>
@@ -74,7 +59,7 @@
                 <option value="Access">Access</option>
             </select>
             <br><br>
-            <div class="cf-turnstile" data-sitekey="{{ sitekey }}" data-theme="light"></div>
+            <!-- <div class="cf-turnstile" data-sitekey="{{ sitekey }}" data-theme="light"></div> -->
 
             <button type="submit" class="submit-btn">Submit Ticket</button>
         </form>
@@ -87,7 +72,7 @@
             {% endfor %}
           {% endif %}
         {% endwith %}
-        <p class="footer-text">©2025 gr_desk, FOSS created by <a href="https://github.com/GoobyFRS">GoobyFRS</a> | <a href="{{ url_for('login') }}">Technician Login</a></p>
+        <p class="footer-text">©2026 GR_Desk, FOSS created by <a href="https://github.com/GoobyFRS">GoobyFRS</a> | <a href="{{ url_for('login') }}">Login</a></p>
     </div>
 </body>
 </html>

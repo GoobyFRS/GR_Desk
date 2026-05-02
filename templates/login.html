@@ -12,17 +12,17 @@
     <!-- Social Media Preview -->
     <meta property="og:title" content="Login">
     <meta property="og:description" content="gr_desk, a Databaseless Service Desk for SMBs.">
-    <meta property="og:image" content="https://raw.githubusercontent.com/GoobyFRS/gr_desk/refs/heads/main/static/gr_desk-color.webp">
+    <meta property="og:image" content="https://raw.githubusercontent.com/GoobyFRS/gr_desk/refs/heads/main/static/gr_desk-color.png">
     <meta property="og:url" content="">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Login">
     <meta name="twitter:description" content="Login">
-    <meta name="twitter:image" content="https://raw.githubusercontent.com/GoobyFRS/gr_desk/refs/heads/main/static/gr_desk-color.webp">
+    <meta name="twitter:image" content="https://raw.githubusercontent.com/GoobyFRS/gr_desk/refs/heads/main/static/gr_desk-color.png">
 
     <!-- Performance Enhancements -->
     <link rel="preconnect" href="https://fonts.bunny.net/css">
     <link rel="preconnect" href="https://fonts.bunny.net/css" crossorigin>
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <!-- <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script> -->
     <!-- Local CSS and JavaScript Imports-->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="{{ url_for('static', filename='helpdesk.js') }}"></script>
@@ -33,7 +33,7 @@
 <body>
     <div class="container">
         <div class="logo">
-            <img src="https://raw.githubusercontent.com/GoobyFRS/gr_desk/refs/heads/main/static/gr_desk-color.webp" alt="gr_desk Logo">
+            <img src="https://raw.githubusercontent.com/GoobyFRS/gr_desk/refs/heads/main/static/gr_desk-color.png" alt="gr_desk Logo">
         </div>
         <h2>Technician Login</h2>
         <form method="post">
@@ -44,11 +44,11 @@
             <input type="password" id="password" name="tech_password_box" placeholder="Secret" required>
             <br><br>
 
-            <div class="cf-turnstile" data-sitekey="{{ sitekey }}" data-theme="dark"></div>
+            <!-- <div class="cf-turnstile" data-sitekey="{{ sitekey }}" data-theme="dark"></div> -->
 
             <button type="submit" class="submit-btn">Login</button>
         </form>
-        <p class="footer-text">©2025 gr_desk, FOSS created by <a href="https://github.com/goobyfrs">GoobyFRS</a></p>
+        <p class="footer-text">©2026 gr_desk, FOSS created by <a href="https://github.com/goobyfrs">GoobyFRS</a></p>
     </div>
 </body>
 </html>

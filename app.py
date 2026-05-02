@@ -30,13 +30,13 @@ BUILDID=str("0.1.0")
 
 """
 Rest in Peace Alex, July 2nd 2005 - December 14th 2024
-Rest in Peace Dave, August 16th 1967 - December 19th 2025
+Rest in Peace Dave, August 16th 1967 - December 19th 2026
 """
 # Secrets loaded from .env file.
 load_dotenv(dotenv_path=".env")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD") # App Password from Gmail or relevant email provider.
-CF_TURNSTILE_SITE_KEY = os.getenv("CF_TURNSTILE_SITE_KEY") # REQUIRED for CAPTCHA functionality.
-CF_TURNSTILE_SECRET_KEY = os.getenv("CF_TURNSTILE_SECRET_KEY") # REQUIRED for CAPTCHA functionality.
+# CF_TURNSTILE_SITE_KEY = os.getenv("CF_TURNSTILE_SITE_KEY") # REQUIRED for CAPTCHA functionality.
+# CF_TURNSTILE_SECRET_KEY = os.getenv("CF_TURNSTILE_SECRET_KEY") # REQUIRED for CAPTCHA functionality.
 TAILSCALE_NOTIFY_EMAIL = os.getenv("TAILSCALE_NOTIFY_EMAIL")
 
 # Configuration non-secret data loaded from YAML.
@@ -89,12 +89,13 @@ def set_security_headers(response):
     # Content Security Policy - start restrictive and adjust as needed
     response.headers['Content-Security-Policy'] = (
         "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; "
+        "script-src 'self' 'unsafe-inline'; "
+        # "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; "
         "style-src 'self' 'unsafe-inline' https://fonts.bunny.net; "
         "img-src 'self' data: https:; "
         "font-src 'self' data: https://fonts.bunny.net; "
         "connect-src 'self'; "
-        "frame-src https://challenges.cloudflare.com; "
+        # "frame-src https://challenges.cloudflare.com; "
         "frame-ancestors 'none'"
     )
     # HTTP Strict Transport Security (forces HTTPS) set to 1 Day.
@@ -119,9 +120,9 @@ Error - Function failures
 Critical - Serious application failures
 """
 # INITIAL ERROR CODES
-if not CF_TURNSTILE_SITE_KEY or not CF_TURNSTILE_SECRET_KEY:
-    logging.critical("CF_TURNSTILE_SITE_KEY and CF_TURNSTILE_SECRET_KEY must be configured in the .env file. It is required for CAPTCHA functionality.")
-    exit(1) 
+# if not CF_TURNSTILE_SITE_KEY or not CF_TURNSTILE_SECRET_KEY:
+#     logging.critical("CF_TURNSTILE_SITE_KEY and CF_TURNSTILE_SECRET_KEY must be configured in the .env file. It is required for CAPTCHA functionality.")
+#     exit(1) 
 
 #email_thread_enabler_check = os.getenv("EMAIL_ENABLED")
 #if email_thread_enabler_check is None:
@@ -204,29 +205,29 @@ def home():
     if request.method == "POST":
         try:
             # Cloudflare Turnstile CAPTCHA validation
-            turnstile_token = request.form.get("cf-turnstile-response")
-            if not turnstile_token:
-                flash("CAPTCHA verification failed. Please try again.", "danger")
-                return redirect(url_for("home"))
-
-            turnstile_url = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
-            turnstile_data = {
-                "secret": CF_TURNSTILE_SECRET_KEY,
-                "response": turnstile_token,
-                "remoteip": request.remote_addr
-            }
-
-            try:
-                turnstile_response = requests.post(turnstile_url, data=turnstile_data)
-                result = turnstile_response.json()
-                if not result.get("success"):
-                    logging.warning(f"Turnstile verification failed: {result}")
-                    flash("CAPTCHA verification failed. Please try again.", "danger")
-                    return redirect(url_for("home"))
-            except Exception as e:
-                logging.error(f"Turnstile verification error: {str(e)}")
-                flash("Error verifying CAPTCHA. Please try again later.", "danger")
-                return redirect(url_for("home"))
+            # turnstile_token = request.form.get("cf-turnstile-response")
+            # if not turnstile_token:
+            #     flash("CAPTCHA verification failed. Please try again.", "danger")
+            #     return redirect(url_for("home"))
+            #
+            # turnstile_url = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+            # turnstile_data = {
+            #     "secret": CF_TURNSTILE_SECRET_KEY,
+            #     "response": turnstile_token,
+            #     "remoteip": request.remote_addr
+            # }
+            #
+            # try:
+            #     turnstile_response = requests.post(turnstile_url, data=turnstile_data)
+            #     result = turnstile_response.json()
+            #     if not result.get("success"):
+            #         logging.warning(f"Turnstile verification failed: {result}")
+            #         flash("CAPTCHA verification failed. Please try again.", "danger")
+            #         return redirect(url_for("home"))
+            # except Exception as e:
+            #     logging.error(f"Turnstile verification error: {str(e)}")
+            #     flash("Error verifying CAPTCHA. Please try again later.", "danger")
+            #     return redirect(url_for("home"))
 
             # Process ticket submission
             ticket_number = generate_ticket_number()
@@ -301,7 +302,7 @@ def home():
             return redirect(url_for("home"))
 
     # Refresh and reload the Home/Index
-    return render_template("index.html", sitekey=CF_TURNSTILE_SITE_KEY)
+    return render_template("index.html")  # , sitekey=CF_TURNSTILE_SITE_KEY
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -341,7 +342,7 @@ def login():
         logging.warning(f"Failed login attempt for username: {username}")
         return render_template("login.html", error="Invalid credentials.")
 
-    return render_template("login.html", sitekey=CF_TURNSTILE_SITE_KEY)
+    return render_template("login.html")  # , sitekey=CF_TURNSTILE_SITE_KEY
 
 # Route for rendering the core technician dashboard. Displays all Open and In-Progress tickets.
 @app.route("/dashboard")
