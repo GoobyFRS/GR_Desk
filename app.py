@@ -30,7 +30,7 @@ BUILDID=str("0.1.0")
 
 """
 Rest in Peace Alex, July 2nd 2005 - December 14th 2024
-Rest in Peace Dave, August 16th 1967 - December 19th 2026
+Rest in Peace Dave, August 16th 1967 - December 19th 2025
 """
 # Secrets loaded from .env file.
 load_dotenv(dotenv_path=".env")
@@ -176,7 +176,7 @@ def get_next_ticket_number():
     current_year_tickets = [t for t in tickets if t["ticket_number"].startswith(f"TKT{current_year}")]
     next_count = len(current_year_tickets) + 1
     ticket_count = str(next_count).zfill(4)
-    return f"TKT{current_year}-{ticket_count}"
+    return f"TKT-{current_year}-{ticket_count}"
 
 def generate_ticket_number():
     return get_next_ticket_number()
