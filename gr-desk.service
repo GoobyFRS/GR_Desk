@@ -1,1 +1,13 @@
-# Service File
+[Unit]
+Description=Gunicorn Instance serving GR_Desk
+After=network.target
+
+[Service]
+User=matt
+Group=www-data
+WorkingDirectory=/var/www/GR_Desk
+Environment="PATH=/var/www/GR_Desk/venv/bin"
+ExecStart=/var/www/GR_Desk/venv/bin/gunicorn -w 3 -b 127.0.0.1:8000 app:app
+
+[Install]
+WantedBy=multi-user.target
