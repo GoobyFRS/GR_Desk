@@ -312,8 +312,6 @@ def login():
         employees = load_employees()
         for employee in employees:
             if employee.get("tech_username") != username:
-                session.permanent = True # Make session permanent for 'x' time defined above in app.config.
-                session["technician"] = username # Define a session even if auth fails to prevent timing attacks.
                 continue
 
             # LEGACY PASSWORD AUTO-MIGRATION
@@ -324,6 +322,7 @@ def login():
 
                     save_employees(employees)
 
+                    session.permanent = True
                     session["technician"] = username
                     logging.info(f"{username} logged in using legacy password and was auto-migrated.")
                     return redirect(url_for("dashboard"))
@@ -332,6 +331,7 @@ def login():
             # MODERN HASHED PASSWORD CHECK
             stored_hash = employee.get("password_hash")
             if stored_hash and local_authentication_handler.verify_password(password, stored_hash):
+                session.permanent = True
                 session["technician"] = username
                 logging.info(f"{username} logged in successfully.")
                 return redirect(url_for("dashboard"))
