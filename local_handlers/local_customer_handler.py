@@ -20,9 +20,9 @@ def save_customers(customers):
     with open(CUSTOMERS_FILE, "w") as f:
         json.dump(customers, f, indent=4)
 
-def get_next_customer_id():
+def get_next_customer_id(): # Generate Customer ID numbers.
     customers = load_customers()
-    return f"C{str(len(customers) + 1).zfill(4)}"
+    return f"CLIENT{str(len(customers) + 1).zfill(4)}"
 
 def create_customer(customer_username, customer_first_name, customer_last_name, customer_contact_email, **kwargs):
     customer = {

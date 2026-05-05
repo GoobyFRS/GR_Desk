@@ -20,9 +20,9 @@ def save_employees(employees):
     with open(EMPLOYEES_FILE, "w") as f:
         json.dump(employees, f, indent=4)
 
-def get_next_employee_id():
+def get_next_employee_id(): # Used to Generate Employee IDs
     employees = load_employees()
-    return f"EM{str(len(employees) + 1).zfill(4)}"
+    return f"EMP{str(len(employees) + 1).zfill(4)}"
 
 def create_employee(employee_first_name, employee_last_name, employee_contact_email, **kwargs):
     employee = {
