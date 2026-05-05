@@ -242,7 +242,7 @@ def home():
                 "ticket_type": request.form.get("request_type", "Request"),
                 "ticket_subject": request.form["ticket_subject"],
                 "ticket_body": request.form["ticket_message"],
-                "ticket_impact": int(request.form.get("ticket_impact", 3)),
+                "ticket_impact": int(request.form.get("ticket_impact", 4)),
                 "ticket_urgency": int(request.form.get("ticket_urgency", 4)),
                 "escalation_level": 0,
                 "assigned_team_queue": "support",
