@@ -59,7 +59,7 @@ def create_employee(employee_first_name, employee_last_name, employee_contact_em
 
 def find_employee_by_uuid(employee_uuid):
     employees = load_employees()
-    return next((e for e in employees if e["uuid"] == employee_uuid), None)
+    return next((e for e in employees if e.get("uuid") == employee_uuid), None)
 
 def find_employee_by_username(username):
     employees = load_employees()
@@ -68,7 +68,7 @@ def find_employee_by_username(username):
 def update_employee(employee_uuid, updates):
     employees = load_employees()
     for employee in employees:
-        if employee["uuid"] == employee_uuid:
+        if employee.get("uuid") == employee_uuid:
             employee.update(updates)
             save_employees(employees)
             return True
