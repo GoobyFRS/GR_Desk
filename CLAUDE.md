@@ -709,6 +709,9 @@ except PaymentError:
 - **Never commit `.env` to version control** (add to `.gitignore`)
 - Provide a `.env.example` with placeholder values for documentation
 - Load secrets using `python-dotenv` or similar
+- Never hardcode secrets
+- Never log credentials or tokens
+- Rotate credentials periodically
 
 ```python
 # .env
@@ -2287,3 +2290,32 @@ const displaySettings = {
 | Limit metaprogramming | No `eval`; explicit dispatch tables over dynamic dispatch |
 | Limit nesting | ≤3 levels; destructure at use site |
 | Static analysis | ESLint strict config; lint as CI gate |
+
+# API Standards
+
+- APIs must be versioned
+- Use consistent error response structures
+- Prefer idempotent operations where possible
+- Return structured errors with machine-readable codes
+- Validate request schemas strictly
+
+```json
+{
+  "error": {
+    "code": "USER_NOT_FOUND",
+    "message": "User does not exist"
+  }
+}
+```
+
+### AI Agent Execution Rules
+
+- Do not introduce dependencies unless justified
+- Prefer standard library solutions first
+- Preserve existing architecture unless asked to refactor
+- Minimize file churn
+- Do not rewrite unrelated code
+- Keep diffs focused and atomic
+- Explain tradeoffs when making architectural decisions
+- Ask for clarification before destructive changes
+- Maintain backward compatibility unless instructed otherwise
