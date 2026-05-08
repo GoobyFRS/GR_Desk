@@ -1,32 +1,52 @@
 #!/usr/bin/env python3
+"""GR_Desk - Helpdesk and IT Service Management Application.
+
+A Flask-based ITSM platform supporting ticket management, changes,
+customer relationship management (CRM), human resource management (HRM),
+and reporting with role-based access control and webhook notifications.
+"""
+
 import json
-import threading
-import time
 import logging
 import os
+import threading
+import time
 import uuid
-import requests
-from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from functools import wraps
+from typing import Any, Tuple
 
-from flask import Flask, Response, render_template, request, redirect, url_for, session, jsonify, flash
+import requests
+from dotenv import load_dotenv
+from flask import (
+    Flask,
+    Response,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 
+import local_handlers.local_authentication_handler as (
+    local_authentication_handler
+)
 import local_handlers.local_config_loader as local_config_loader
 import local_handlers.local_email_handler as local_email_handler
+import local_handlers.local_storage_handler as local_storage_handler
 import local_handlers.local_webhook_handler as local_webhook_handler
-import local_handlers.local_authentication_handler as local_authentication_handler
-
 from blueprints.api_ingest import api_ingest_bp
-from blueprints.reports_module import reports_module_bp
 from blueprints.changes_module import changes_module_bp
-from blueprints.itsm_core import itsm_core_bp
-from blueprints.itsm_queues import itsm_queues_bp
 from blueprints.crm_module import crm_module_bp
 from blueprints.hrm_module import hrm_module_bp
-from decorators import technician_required, manager_required, admin_required
+from blueprints.itsm_core import itsm_core_bp
+from blueprints.itsm_queues import itsm_queues_bp
+from blueprints.reports_module import reports_module_bp
+from decorators import admin_required, manager_required, technician_required
 
-BUILDID=str("0.1.0")
+BUILD_ID: str = "0.1.0"
 
 """
 Rest in Peace Alex, July 2nd 2005 - December 14th 2024
@@ -110,91 +130,22 @@ def set_security_headers(response):
 logging.basicConfig(
     filename=LOG_FILE,
     level=getattr(logging, LOG_LEVEL.upper(), logging.INFO),
-    format="%(asctime)s - %(levelname)s - %(message)s"
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
-""" Above is the default logging configuration.
-Debug - Detailed information
-Info - Successes
-Warning - Unexpected events
-Error - Function failures
-Critical - Serious application failures
-"""
-# INITIAL ERROR CODES
-# if not CF_TURNSTILE_SITE_KEY or not CF_TURNSTILE_SECRET_KEY:
-#     logging.critical("CF_TURNSTILE_SITE_KEY and CF_TURNSTILE_SECRET_KEY must be configured in the .env file. It is required for CAPTCHA functionality.")
-#     exit(1) 
 
-#email_thread_enabler_check = os.getenv("EMAIL_ENABLED")
-#if email_thread_enabler_check is None:
-#    logging.info("EMAIL_ENABLED is not defined. Defaulting to False.")
-#    EMAIL_ENABLED = False
-#else:
-#    EMAIL_ENABLED = email_thread_enabler_check.lower() == "true"
-#    logging.info(f"EMAIL_ENABLED is set to {EMAIL_ENABLED}.")
 
-# Read/Loads the ticket file into memory. This is the original load_tickets function that works on Windows and Unix.
-def load_tickets():
-    try:
-        with open(TICKETS_FILE, "r") as tkt_file:
-            return json.load(tkt_file)
-    except FileNotFoundError:
-        logging.critical("Ticket JSON Database file could not be located.")
-        exit(1)
-    except json.JSONDecodeError:
-        logging.error("Ticket JSON Database file is empty or contains invalid JSON. Treating as empty list.")
-        return []
+def background_email_monitor() -> None:
+    """Background thread for monitoring email replies.
 
-# Writes to the ticket file database. Eventually needs file locking for Linux.
-def save_tickets(tickets):
-    with open(TICKETS_FILE, "w") as tkt_file_write_op:
-        json.dump(tickets, tkt_file_write_op, indent=4)
-        logging.debug("The Ticket JSON Database file was modified.")
-
-# Read/Loads the employee file into memory.
-def load_employees():
-    try:
-        with open(EMPLOYEE_FILE, "r") as tech_file_read_op:
-            return json.load(tech_file_read_op)
-    except FileNotFoundError:
-        logging.debug("Employee JSON Database file could not be located.")
-        return []
-    except json.JSONDecodeError:
-        logging.error("Employee JSON Database file is empty or contains invalid JSON. Treating as empty list.")
-        return []
-    
-# Helper script for secure password hasing auto-migration.
-def save_employees(employees):
-    with open(EMPLOYEE_FILE, "w") as emp_file_write_op:
-        json.dump(employees, emp_file_write_op, indent=4)
-    logging.debug("The Employee JSON Database file was modified.")
-
-# Generate a new ticket number in format TKTyyyy-nnnn
-def get_next_ticket_number():
-    tickets = load_tickets()
-    current_year = datetime.now().year
-    # Find max ticket number for current year
-    current_year_tickets = [t for t in tickets if t["ticket_number"].startswith(f"TKT{current_year}")]
-    next_count = len(current_year_tickets) + 1
-    ticket_count = str(next_count).zfill(4)
-    return f"TKT-{current_year}-{ticket_count}"
-
-def generate_ticket_number():
-    return get_next_ticket_number()
-
-def generate_change_request_number():
-    tickets = load_tickets()
-    current_year = datetime.now().year
-    ticket_count = str(len(tickets) + 1).zfill(4)
-    return f"CHG-{current_year}-{ticket_count}"
-
-# Background email inbox monitoring process.
-def background_email_monitor():
+    Continuously fetches email replies on a 10-minute interval and
+    appends them to corresponding ticket notes.
+    """
     while True:
         local_email_handler.fetch_email_replies()
-        time.sleep(600)  # Wait for emails every 10 minutes.
-#threading.Thread(target=background_email_monitor, daemon=True).start()
+        time.sleep(600)  # Wait for emails every 10 minutes
 
-if EMAIL_ENABLED is True:
+
+if EMAIL_ENABLED:
     logging.info("Starting background email monitoring thread...")
     threading.Thread(target=background_email_monitor, daemon=True).start()
 else:

@@ -1,50 +1,75 @@
 #!/usr/bin/env python3
-from flask import Blueprint, request, jsonify
-import json, logging
+"""API ingest module for webhook integrations.
+
+Handles incoming webhooks from external services (Tailscale, Uptime Kuma,
+GoobyDNS) and creates corresponding support tickets.
+"""
+
 from datetime import datetime
-import local_handlers.local_webhook_handler as local_webhook_handler
+from typing import Any
+
+from flask import Blueprint, jsonify, request
+import logging
+
 from local_handlers.local_config_loader import load_core_config
+import local_handlers.local_storage_handler as local_storage_handler
+import local_handlers.local_webhook_handler as local_webhook_handler
 
 core_yaml_config = load_core_config()
-LOG_LEVEL = core_yaml_config["logging"]["level"]
-LOG_FILE = core_yaml_config["logging"]["file"]
+LOG_LEVEL: str = core_yaml_config["logging"]["level"]
+LOG_FILE: str = core_yaml_config["logging"]["file"]
 
-logging.basicConfig(filename=LOG_FILE,level=getattr(logging, LOG_LEVEL.upper(), logging.INFO),format="%(asctime)s - %(levelname)s - %(message)s")
-""" Above is the default logging configuration.
-Debug - Detailed information
-Info - Successes
-Warning - Unexpected events
-Error - Function failures
-Critical - Serious application failures
-"""
-api_ingest_bp = Blueprint('api_ingest', __name__, url_prefix='/api')
+logging.basicConfig(
+    filename=LOG_FILE,
+    level=getattr(logging, LOG_LEVEL.upper(), logging.INFO),
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
 
-# Importing from APP to avoid circular imports. There might be a better way for this.
-def get_tickets_functions():
-    from app import load_tickets, save_tickets, generate_ticket_number
-    return load_tickets, save_tickets, generate_ticket_number
+api_ingest_bp = Blueprint("api_ingest", __name__, url_prefix="/api")
 
-# Status Endpoint at /api/status
+
 @api_ingest_bp.route("/status", methods=["GET"])
-def api_status():
-    return jsonify({
-        "is_gr_desk": True,
-        "installed": True,
-        "edition": "community",
-        "license_key": None
-    }), 200
+def api_status() -> tuple[dict[str, Any], int]:
+    """Check API status and GR_Desk installation.
+
+    Returns:
+        JSON response with API status information and 200 status code.
+    """
+    return (
+        jsonify(
+            {
+                "is_gr_desk": True,
+                "installed": True,
+                "edition": "community",
+                "license_key": None,
+            }
+        ),
+        200,
+    )
+
 
 @api_ingest_bp.route("/tailscale", methods=["POST"])
-def tailscale_webhook():
-    load_tickets, save_tickets, generate_ticket_number = get_tickets_functions()
-    TAILSCALE_NOTIFY_EMAIL = api_ingest_bp.config.get('TAILSCALE_NOTIFY_EMAIL', 'noreply@tailscale.example.org')
-    
+def tailscale_webhook() -> tuple[dict[str, Any], int]:
+    """Handle Tailscale webhook notifications.
+
+    Creates a support ticket from incoming Tailscale events.
+
+    Returns:
+        JSON response with ticket number or error message and HTTP status code.
+    """
+    TAILSCALE_NOTIFY_EMAIL: str = (
+        api_ingest_bp.config.get("TAILSCALE_NOTIFY_EMAIL", "noreply@tailscale.example.org")
+        if hasattr(api_ingest_bp, "config")
+        else "noreply@tailscale.example.org"
+    )
+
     try:
         payload = request.json
         if not payload:
             logging.warning("API INGEST - Tailscale webhook sent an empty payload.")
             return jsonify({"error": "Empty payload"}), 400
 
+        import json
         formatted_ts_webhook_body = json.dumps(payload, indent=4)
 
         requestor_name = "Tailscale"
@@ -54,9 +79,9 @@ def tailscale_webhook():
         ticket_impact = "Medium"
         ticket_urgency = "Medium"
         request_type = "Change"
-        ticket_number = generate_ticket_number()
+        ticket_number = local_storage_handler.generate_ticket_number()
 
-        new_ticket = {
+        new_ticket: dict[str, Any] = {
             "ticket_number": ticket_number,
             "requestor_name": requestor_name,
             "requestor_email": requestor_email,
@@ -67,23 +92,29 @@ def tailscale_webhook():
             "ticket_urgency": ticket_urgency,
             "ticket_status": "Open",
             "submission_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "ticket_notes": []
+            "ticket_notes": [],
         }
 
-        tickets = load_tickets()
+        tickets = local_storage_handler.load_tickets()
         tickets.append(new_ticket)
-        save_tickets(tickets)
+        local_storage_handler.save_tickets(tickets)
         logging.info(f"Tailscale Notification — {ticket_number} created successfully.")
 
         try:
             local_webhook_handler.notify_ticket_event(
                 ticket_number=ticket_number,
                 ticket_status="Open",
-                ticket_subject=ticket_subject
-                )
-            logging.info(f"API INGEST - Ticket {ticket_number} status notifications sent successfully.")
+                ticket_subject=ticket_subject,
+            )
+            logging.info(
+                f"API INGEST - Ticket {ticket_number} status "
+                "notifications sent successfully."
+            )
         except Exception as e:
-            logging.error(f"API INGEST - Failed to send ticket status update notifications for {ticket_number}: {str(e)}")
+            logging.error(
+                f"API INGEST - Failed to send ticket status update "
+                f"notifications for {ticket_number}: {str(e)}"
+            )
 
         return jsonify({"status": "success", "ticket": ticket_number}), 200
 
@@ -91,13 +122,22 @@ def tailscale_webhook():
         logging.critical(f"API INGEST - Tailscale webhook error: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
 
+
 @api_ingest_bp.route("/uptime-kuma", methods=["POST"])
-def uptime_kuma_webhook():
-    load_tickets, save_tickets, generate_ticket_number = get_tickets_functions()
-    
+def uptime_kuma_webhook() -> tuple[dict[str, Any], int]:
+    """Handle Uptime Kuma webhook notifications.
+
+    Creates a support ticket from Uptime Kuma monitoring events.
+
+    Returns:
+        JSON response with ticket number or error message and HTTP status code.
+    """
     try:
         if not request.is_json:
-            logging.warning("API INGEST -Uptime-Kuma webhook sent invalid content type.")
+            logging.warning(
+                "API INGEST - Uptime-Kuma webhook sent invalid content type."
+            )
+            return jsonify({"error": "Invalid content type"}), 400
             return jsonify({"error": "Invalid content type"}), 400
         payload = request.json
         logging.info(f"API INGEST -Uptime Kuma payload received: {payload}")
