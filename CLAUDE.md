@@ -773,4 +773,66 @@ def load_config(path: Path = Path("configuration.yml")) -> dict:
     Returns:
         Configuration dictionary.
 
-    Ra
+    Raises:
+        FileNotFoundError: If configuration file doesn't exist.
+    """
+    with open(path) as f:
+        return yaml.safe_load(f)
+
+config = load_config()
+port = config["server"]["port"]
+```
+
+**Always use `yaml.safe_load()`** - never `yaml.load()` without a Loader.
+
+## Versioning
+
+Follow **Semantic Versioning** (SemVer): `MAJOR.MINOR.PATCH`
+
+| Increment | When |
+|-----------|------|
+| **MAJOR** | Breaking/incompatible API changes |
+| **MINOR** | New functionality, backwards compatible |
+| **PATCH** | Bug fixes, backwards compatible |
+
+**Examples:**
+- `1.0.0` → `2.0.0`: Removed a public function
+- `1.0.0` → `1.1.0`: Added new optional parameter
+- `1.0.0` → `1.0.1`: Fixed a bug
+
+**Pre-release versions:**
+- Alpha: `1.0.0-alpha.1`
+- Beta: `1.0.0-beta.1`
+- Release candidate: `1.0.0-rc.1`
+
+Store version in `pyproject.toml` or `__version__` in package `__init__.py`:
+
+```python
+# src/package_name/__init__.py
+__version__ = "1.2.3"
+```
+
+## Project Structure
+
+```
+project/
+├── src/
+│   └── package_name/
+│       ├── __init__.py
+│       ├── main.py
+│       └── utils/
+├── tests/
+│   └── test_main.py
+├── .env                 # Secrets (git-ignored)
+├── .env.example         # Template for secrets
+├── configuration.yml    # App configuration
+├── pyproject.toml
+├── README.md
+└── CLAUDE.md
+```
+
+## Tooling Preferences
+
+- **Formatter**: black (or ruff format)
+- **Linter**: ruff
+- **Type checker**: mypy or pyright
