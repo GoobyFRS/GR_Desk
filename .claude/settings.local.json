@@ -1,7 +1,17 @@
 {
   "permissions": {
     "allow": [
-      "Bash(tree:*)"
+      "Bash(python3:*)",
+      "Bash(PYTHONPATH=./src python3:*)",
+      "Bash(pip3 install:*)",
+      "Bash(source:*)",
+      "Bash(pip install:*)",
+      "Bash(PIP_NO_INPUT=1 pip install:*)",
+      "Bash(find:*)",
+      "Bash(.venv/bin/python:*)",
+      "Bash(pkill:*)",
+      "Bash(flask routes:*)",
+      "Bash(python:*)"
     ]
   }
 }

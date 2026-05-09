@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}{{ customer.full_name }} - CRM - {{ branding.brand.name }}{% endblock %}
+
+{% block brand_url %}/crm/dashboard{% endblock %}
+
+{% block navbar %}
+{% if employee_navbar and employee_navbar.navbar %}
+    {% for item in employee_navbar.navbar.links %}
+        <div class="nav-dropdown">
+            <a href="{{ item.url }}" class="nav-link">{{ item.label }}</a>
+            {% if item.submenu %}
+                <div class="dropdown-content">
+                    {% for subitem in item.submenu %}
+                        <a href="{{ subitem.url }}">{{ subitem.label }}</a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+    {% if current_user.is_admin %}
+        {% for item in employee_navbar.navbar.admin_links %}
+            <div class="nav-dropdown">
+                <a href="{{ item.url }}" class="nav-link">{{ item.label }}</a>
+                {% if item.submenu %}
+                    <div class="dropdown-content">
+                        {% for subitem in item.submenu %}
+                            <a href="{{ subitem.url }}">{{ subitem.label }}</a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endif %}
+{% endblock %}
+
+{% block navbar_actions %}
+<span class="user-info">{{ current_user.display_name }}</span>
+<a href="{{ url_for('public.logout') }}" class="btn btn-outline">Logout</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>{{ customer.full_name }}</h1>
+        <p>{{ customer.customer_id }} - Account since {{ customer.customer_account_created_date }}</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{{ url_for('crm.dashboard') }}" class="btn btn-outline">Back to List</a>
+    </div>
+</div>
+
+<form action="{{ url_for('crm.edit_profile', uuid=customer.uuid) }}" method="POST">
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Personal Information</h3>
+            <div>
+                {% if customer.customer_vip_status %}
+                <span class="badge badge-warning">VIP</span>
+                {% endif %}
+                {% if customer.is_content_creator %}
+                <span class="badge badge-info">Content Creator</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="first_name">First Name</label>
+                    <input type="text" class="form-control" id="first_name" name="first_name" value="{{ customer.customer_first_name }}" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="last_name">Last Name</label>
+                    <input type="text" class="form-control" id="last_name" name="last_name" value="{{ customer.customer_last_name }}" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="preferred_name">Preferred Name</label>
+                    <input type="text" class="form-control" id="preferred_name" name="preferred_name" value="{{ customer.customer_preferred_name }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" value="{{ customer.customer_contact_email }}" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="ingame_username">In-Game Username</label>
+                    <input type="text" class="form-control" id="ingame_username" name="ingame_username" value="{{ customer.customer_ingame_username }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="discord_user_id">Discord User ID</label>
+                    <input type="text" class="form-control" id="discord_user_id" name="discord_user_id" value="{{ customer.customer_discord_user_id }}">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Account Status</h3>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="account_status">Account Status</label>
+                    <select class="form-control" id="account_status" name="account_status">
+                        {% for status in statuses %}
+                        <option value="{{ status }}" {% if customer.customer_account_status == status %}selected{% endif %}>{{ status | capitalize }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="fraud_risk">Fraud Risk</label>
+                    <select class="form-control" id="fraud_risk" name="fraud_risk">
+                        {% for level in fraud_risk_levels %}
+                        <option value="{{ level }}" {% if customer.customer_fraud_risk == level %}selected{% endif %}>{{ level | capitalize }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="status_reason">Status Reason</label>
+                    <input type="text" class="form-control" id="status_reason" name="status_reason" value="{{ customer.customer_status_reason }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" id="vip_status" name="vip_status" {% if customer.customer_vip_status %}checked{% endif %}>
+                        <label for="vip_status">VIP Status</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" id="is_content_creator" name="is_content_creator" {% if customer.is_content_creator %}checked{% endif %}>
+                        <label for="is_content_creator">Content Creator</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Financial Information</h3>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Total Lifetime Value</label>
+                    <p class="mt-2">${{ "%.2f" | format(customer.customer_total_lifetime_value) }}</p>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Last Order Date</label>
+                    <p class="mt-2">{{ customer.customer_last_order_date or 'Never' }}</p>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Last Payment Date</label>
+                    <p class="mt-2">{{ customer.customer_last_payment_date or 'Never' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Communication Preferences</h3>
+        </div>
+        <div class="card-body">
+            <fieldset class="fieldset--borderless">
+                <legend class="sr-only">Communication preferences options</legend>
+                <div class="form-row">
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" id="marketing_opt_in" name="marketing_opt_in" {% if customer.marketing_opt_in %}checked{% endif %}>
+                            <label for="marketing_opt_in">Marketing Opt-In</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" id="maintenance_notifications" name="maintenance_notifications" {% if customer.maintenance_notifications_enabled %}checked{% endif %}>
+                            <label for="maintenance_notifications">Maintenance Notifications</label>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Platform Access</h3>
+        </div>
+        <div class="card-body">
+            <fieldset class="fieldset--borderless">
+                <legend class="sr-only">Platform access permissions</legend>
+                <div class="form-row">
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" id="has_freshrss_access" name="has_freshrss_access" {% if customer.has_freshrss_access %}checked{% endif %}>
+                            <label for="has_freshrss_access">FreshRSS Access</label>
+                        </div>
+                        <input type="text" class="form-control mt-2" name="freshrss_username" value="{{ customer.freshrss_username }}" placeholder="FreshRSS Username">
+                    </div>
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" id="has_jellyfin_access" name="has_jellyfin_access" {% if customer.has_jellyfin_access %}checked{% endif %}>
+                            <label for="has_jellyfin_access">Jellyfin Access</label>
+                        </div>
+                        <input type="text" class="form-control mt-2" name="jellyfin_username" value="{{ customer.jellyfin_username }}" placeholder="Jellyfin Username">
+                    </div>
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" id="has_nextcloud_access" name="has_nextcloud_access" {% if customer.has_nextcloud_access %}checked{% endif %}>
+                            <label for="has_nextcloud_access">Nextcloud Access</label>
+                        </div>
+                        <input type="text" class="form-control mt-2" name="nextcloud_username" value="{{ customer.nextcloud_username }}" placeholder="Nextcloud Username">
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{{ url_for('crm.dashboard') }}" class="btn btn-outline">Cancel</a>
+    </div>
+</form>
+{% endblock %}

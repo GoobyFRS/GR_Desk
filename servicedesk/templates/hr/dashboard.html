@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}HR Dashboard - {{ branding.brand.name }}{% endblock %}
+
+{% block brand_url %}/hr/dashboard{% endblock %}
+
+{% block navbar %}
+{% if employee_navbar and employee_navbar.navbar %}
+    {% for item in employee_navbar.navbar.links %}
+        <div class="nav-dropdown">
+            <a href="{{ item.url }}" class="nav-link">{{ item.label }}</a>
+            {% if item.submenu %}
+                <div class="dropdown-content">
+                    {% for subitem in item.submenu %}
+                        <a href="{{ subitem.url }}">{{ subitem.label }}</a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+    {% if current_user.is_admin %}
+        {% for item in employee_navbar.navbar.admin_links %}
+            <div class="nav-dropdown">
+                <a href="{{ item.url }}" class="nav-link">{{ item.label }}</a>
+                {% if item.submenu %}
+                    <div class="dropdown-content">
+                        {% for subitem in item.submenu %}
+                            <a href="{{ subitem.url }}">{{ subitem.label }}</a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endif %}
+{% endblock %}
+
+{% block navbar_actions %}
+<span class="user-info">{{ current_user.display_name }}</span>
+<a href="{{ url_for('public.logout') }}" class="btn btn-outline">Logout</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Employee Management</h1>
+        <p>Manage employees and access roles</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{{ url_for('hr.submit_new') }}" class="btn btn-primary">Create New Employee</a>
+        <a href="{{ url_for('hr.export') }}" class="btn btn-outline">Export CSV</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-wrapper">
+        <table>
+            <caption class="sr-only">Employee records with roles and management options</caption>
+            <thead>
+                <tr>
+                    <th scope="col" data-sort="text">Employee ID</th>
+                    <th scope="col" data-sort="text">First Name</th>
+                    <th scope="col" data-sort="text">Last Name</th>
+                    <th scope="col" data-sort="text">Title</th>
+                    <th scope="col" data-sort="text">Access Role</th>
+                    <th scope="col" data-sort="text">Status</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for employee in employees %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('hr.profile', employee_id=employee.employee_id) }}">
+                            {{ employee.employee_id }}
+                        </a>
+                    </td>
+                    <td>{{ employee.employee_first_name }}</td>
+                    <td>{{ employee.employee_last_name }}</td>
+                    <td>{{ employee.employee_title }}</td>
+                    <td>
+                        <span class="badge badge-{% if employee.employee_access_role == 'admin' %}danger{% elif employee.employee_access_role == 'technician' %}primary{% else %}secondary{% endif %}">
+                            {{ employee.employee_access_role | capitalize }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status status-{{ employee.employment_status }}">
+                            {{ employee.employment_status | capitalize }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('hr.profile', employee_id=employee.employee_id) }}" class="btn btn-sm btn-primary">View</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted" style="padding: 2rem;">
+                        No employees found. <a href="{{ url_for('hr.submit_new') }}">Create the first employee</a>.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

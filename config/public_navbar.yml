@@ -1,0 +1,22 @@
+# Public Navigation Bar Configuration
+
+navbar:
+  brand:
+    text: "GR_Core"
+    url: "/"
+
+  links:
+    - label: "Home"
+      url: "/"
+      icon: "home"
+    - label: "Submit Ticket"
+      url: "/#submit-ticket"
+      icon: "ticket"
+
+  auth_links:
+    - label: "Login"
+      url: "/login"
+      icon: "login"
+    - label: "Sign Up"
+      url: "/signup"
+      icon: "user-plus"

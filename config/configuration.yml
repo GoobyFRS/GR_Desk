@@ -1,0 +1,108 @@
+# Service Desk Configuration
+
+app:
+  name: "Service Desk"
+  debug: false
+  log_level: "INFO"
+
+server:
+  host: "0.0.0.0"
+  port: 5000
+  workers: 2
+
+data:
+  path: "data"
+  tickets_file: "tickets.yaml"
+  employees_file: "employees.yaml"
+  customers_file: "customers.yaml"
+  services_file: "services.yaml"
+
+tickets:
+  queues:
+    - support
+    - escalation
+    - billing
+  statuses:
+    - new
+    - in_progress
+    - on_hold
+    - resolved
+    - cancelled
+  impacts:
+    - low
+    - medium
+    - high
+    - critical
+  urgencies:
+    - low
+    - medium
+    - high
+    - critical
+  default_queue: "support"
+  default_status: "new"
+  default_impact: "low"
+  default_urgency: "low"
+
+employees:
+  access_roles:
+    - none
+    - technician
+    - admin
+  assignment_queues:
+    - support
+    - escalation
+    - billing
+  default_role: "technician"
+  default_queue: "support"
+
+customers:
+  statuses:
+    - active
+    - suspended
+    - closed
+  fraud_risk_levels:
+    - low
+    - medium
+    - high
+  default_status: "active"
+  default_fraud_risk: "low"
+
+services:
+  statuses:
+    - active
+    - suspended
+    - terminated
+    - provisioning
+  default_status: "provisioning"
+
+session:
+  lifetime_hours: 24
+
+# Webhook Configuration
+webhooks:
+  # Inbound webhooks - receive data from external platforms
+  ingest:
+    tailscale:
+      enabled: false
+      secret: ""  # Webhook secret for signature verification
+    uptime_kuma:
+      enabled: false
+      token: ""  # Bearer token for authentication
+      create_ticket_on_up: false  # Only create tickets for DOWN events by default
+    generic:
+      enabled: false
+      api_key: ""  # X-API-Key header for authentication
+
+  # Outbound webhooks - send notifications to external platforms
+  egress:
+    discord:
+      enabled: false
+      webhook_url: ""
+      username: "Service Desk"
+      avatar_url: ""
+    slack:
+      enabled: false
+      webhook_url: ""
+    teams365:
+      enabled: false
+      webhook_url: ""

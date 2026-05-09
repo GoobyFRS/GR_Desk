@@ -1,0 +1,130 @@
+/**
+ * Accessibility - A11y utilities and styles
+ * WCAG 2.1 AA compliance
+ */
+
+/* Focus styles - never just remove outline */
+:focus-visible {
+    outline: 2px solid var(--color-brand-primary);
+    outline-offset: 2px;
+}
+
+/* Remove focus outline for mouse users, keep for keyboard */
+:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* Screen reader only - visually hidden but accessible */
+.sr-only,
+.visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* Allow sr-only content to be focusable */
+.sr-only-focusable:focus,
+.sr-only-focusable:active {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    clip: auto !important;
+    white-space: normal !important;
+}
+
+/* Skip link for keyboard navigation */
+.skip-link {
+    position: absolute;
+    top: -100%;
+    left: var(--space-4);
+    z-index: var(--z-tooltip);
+    padding: var(--space-3) var(--space-4);
+    background-color: var(--color-brand-primary);
+    color: white;
+    font-weight: var(--font-medium);
+    border-radius: var(--radius-md);
+    transition: top var(--transition-fast);
+}
+
+.skip-link:focus {
+    top: var(--space-4);
+}
+
+/* High contrast mode support */
+@media (forced-colors: active) {
+    .btn,
+    .form-control,
+    .card {
+        border: 2px solid currentColor;
+    }
+}
+
+/* Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Ensure interactive elements have sufficient touch target size (44x44px) */
+@media (pointer: coarse) {
+    button,
+    [role="button"],
+    input[type="checkbox"],
+    input[type="radio"],
+    select {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* Ensure sufficient color contrast for text */
+.text-contrast {
+    color: var(--color-neutral-800);
+}
+
+.text-contrast-muted {
+    color: var(--color-neutral-600); /* Meets 4.5:1 ratio */
+}
+
+/* Not focusable utility */
+[tabindex="-1"]:focus {
+    outline: none;
+}
+
+/* Indicate loading state */
+[aria-busy="true"] {
+    cursor: wait;
+}
+
+/* Indicate disabled state */
+[aria-disabled="true"],
+[disabled] {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Live region for announcements */
+.live-region {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}

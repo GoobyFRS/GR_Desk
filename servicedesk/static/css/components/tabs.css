@@ -1,0 +1,45 @@
+/**
+ * Tabs - Tab navigation component
+ */
+
+.tabs {
+    display: flex;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: var(--space-6);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tab {
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--color-neutral-500);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color var(--transition-fast),
+                border-color var(--transition-fast);
+}
+
+.tab:hover {
+    color: var(--color-neutral-700);
+}
+
+.tab[aria-selected="true"],
+.tab.active {
+    color: var(--color-brand-primary);
+    border-bottom-color: var(--color-brand-primary);
+}
+
+/* Tab panels */
+.tab-content {
+    display: none;
+}
+
+.tab-content[aria-hidden="false"],
+.tab-content.active {
+    display: block;
+}

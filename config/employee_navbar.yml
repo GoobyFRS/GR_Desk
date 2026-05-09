@@ -1,0 +1,36 @@
+# Employee Navigation Bar Configuration
+
+navbar:
+  brand:
+    text: "GR_Core"
+    url: "/itsm/dashboard"
+
+  links:
+    - label: "ITSM"
+      url: "/itsm/dashboard"
+      icon: "ticket"
+
+    - label: "CRM"
+      url: "/crm/dashboard"
+      icon: "users"
+
+    - label: "Services"
+      url: "/services/dashboard"
+      icon: "server"
+
+    - label: "Reports"
+      url: "/reports/dashboard"
+      icon: "chart"
+
+  admin_links:
+    - label: "HR"
+      url: "/hr/dashboard"
+      icon: "briefcase"
+
+  user_menu:
+    - label: "Profile"
+      url: "/profile"
+      icon: "user"
+    - label: "Logout"
+      url: "/logout"
+      icon: "logout"

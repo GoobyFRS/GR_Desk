@@ -1,0 +1,89 @@
+/**
+ * Alerts - Alert/notification component styles
+ */
+
+/* Flash messages container */
+.flash-messages {
+    margin-bottom: var(--space-6);
+}
+
+/* Alert base */
+.alert {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    margin-bottom: var(--space-3);
+    font-size: var(--text-sm);
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+}
+
+.alert:last-child {
+    margin-bottom: 0;
+}
+
+.alert p {
+    margin-bottom: 0;
+}
+
+/* Alert variants */
+.alert--success,
+.alert-success {
+    background-color: var(--color-success-bg);
+    border-color: var(--color-success-border);
+    color: var(--color-success-text);
+}
+
+.alert--danger,
+.alert-danger {
+    background-color: var(--color-danger-bg);
+    border-color: var(--color-danger-border);
+    color: var(--color-danger-text);
+}
+
+.alert--warning,
+.alert-warning {
+    background-color: var(--color-warning-bg);
+    border-color: var(--color-warning-border);
+    color: var(--color-warning-text);
+}
+
+.alert--info,
+.alert-info {
+    background-color: var(--color-info-bg);
+    border-color: var(--color-info-border);
+    color: var(--color-info-text);
+}
+
+/* Alert close button */
+.alert__close,
+.alert-close {
+    flex-shrink: 0;
+    padding: 0;
+    font-size: var(--text-lg);
+    line-height: 1;
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity var(--transition-fast);
+}
+
+.alert__close:hover,
+.alert-close:hover {
+    opacity: 1;
+}
+
+/* Alert with icon */
+.alert--with-icon {
+    padding-left: var(--space-12);
+    position: relative;
+}
+
+.alert__icon {
+    position: absolute;
+    left: var(--space-4);
+    top: var(--space-3);
+}
