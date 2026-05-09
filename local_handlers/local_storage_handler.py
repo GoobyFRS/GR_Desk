@@ -127,7 +127,7 @@ def generate_ticket_number() -> str:
     current_year_tickets = [
         t
         for t in tickets
-        if t.get("ticket_number", "").startswith(f"TKT{current_year}")
+        if t.get("ticket_number", "").startswith(f"TKT-{current_year}-")
     ]
     next_count = len(current_year_tickets) + 1
     ticket_count = str(next_count).zfill(4)

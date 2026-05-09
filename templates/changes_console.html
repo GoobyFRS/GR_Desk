@@ -16,7 +16,7 @@
             <p><strong>Requestor:</strong> {{ change.change_requestor }}</p>
             <p><strong>Implementor:</strong> {{ change.change_implementor or 'Unassigned' }}</p>
             <p><strong>Status:</strong> <span class="status-badge status-{{ change.change_status }}">{{ change.change_status }}</span></p>
-            <p><strong>Queue:</strong> {{ change.assigned_team_queue }}</p>
+            <p><strong>Queue:</strong> {{ change.assigned_queue }}</p>
         </div>
 
         <div class="change-dates">

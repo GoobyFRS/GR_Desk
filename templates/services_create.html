@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Create Service - gr_desk{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="logo">
+        <img src="https://raw.githubusercontent.com/GoobyFRS/gr_desk/refs/heads/main/static/gr_desk-color.png" alt="gr_desk Logo">
+    </div>
+    <h2>Create New Service</h2>
+
+    <form method="POST" action="/services/create">
+        <h3 style="margin-top:18px; text-align:left">Basic Information</h3>
+
+        <label for="service_name">Service Name *</label>
+        <input type="text" id="service_name" name="service_name" required>
+
+        <label for="service_type">Service Type *</label>
+        <select id="service_type" name="service_type" required>
+            <option value="">Select Type</option>
+            <option value="minecraft">Minecraft Server</option>
+            <option value="vps">Virtual Private Server</option>
+            <option value="web">Web Hosting</option>
+            <option value="database">Database</option>
+            <option value="storage">Storage</option>
+            <option value="other">Other</option>
+        </select>
+
+        <label for="service_sku">Service SKU</label>
+        <input type="text" id="service_sku" name="service_sku">
+
+        <h3 style="margin-top:18px; text-align:left">Customer Assignment</h3>
+
+        <label for="customer_id">Customer ID (CID)</label>
+        <input type="text" id="customer_id" name="customer_id" placeholder="CID-YYYY-NNNN">
+
+        <label for="customer_uuid">Customer UUID</label>
+        <input type="text" id="customer_uuid" name="customer_uuid">
+
+        <h3 style="margin-top:18px; text-align:left">Network Configuration</h3>
+
+        <label for="service_ip">IP Address</label>
+        <input type="text" id="service_ip" name="service_ip" placeholder="192.168.1.100">
+
+        <label for="service_subdomain">Subdomain</label>
+        <input type="text" id="service_subdomain" name="service_subdomain" placeholder="myserver.example.com">
+
+        <h3 style="margin-top:18px; text-align:left">Infrastructure</h3>
+
+        <label for="node_id">Node ID</label>
+        <input type="text" id="node_id" name="node_id">
+
+        <label for="cluster_id">Cluster ID</label>
+        <input type="text" id="cluster_id" name="cluster_id">
+
+        <label for="region">Region</label>
+        <select id="region" name="region">
+            <option value="">Select Region</option>
+            <option value="us-east">US East</option>
+            <option value="us-west">US West</option>
+            <option value="us-central">US Central</option>
+            <option value="eu-west">EU West</option>
+            <option value="eu-central">EU Central</option>
+            <option value="asia-pacific">Asia Pacific</option>
+        </select>
+
+        <label for="service_provision_source">Provisioning Source</label>
+        <input type="text" id="service_provision_source" name="service_provision_source" placeholder="pterodactyl, proxmox, manual">
+
+        <h3 style="margin-top:18px; text-align:left">Resource Allocation</h3>
+
+        <label for="allocated_ram_mb">RAM (MB)</label>
+        <input type="number" id="allocated_ram_mb" name="allocated_ram_mb" min="0" step="256">
+
+        <label for="allocated_disk_gb">Disk (GB)</label>
+        <input type="number" id="allocated_disk_gb" name="allocated_disk_gb" min="0">
+
+        <label for="allocated_cpu_cores">CPU Cores</label>
+        <input type="number" id="allocated_cpu_cores" name="allocated_cpu_cores" min="0">
+
+        <h3 style="margin-top:18px; text-align:left">Game Server Settings</h3>
+
+        <label for="minecraft_version">Minecraft Version</label>
+        <input type="text" id="minecraft_version" name="minecraft_version" placeholder="1.20.4">
+
+        <label for="server_type">Server Type</label>
+        <select id="server_type" name="server_type">
+            <option value="">Select Type</option>
+            <option value="vanilla">Vanilla</option>
+            <option value="paper">Paper</option>
+            <option value="spigot">Spigot</option>
+            <option value="forge">Forge</option>
+            <option value="fabric">Fabric</option>
+            <option value="purpur">Purpur</option>
+        </select>
+
+        <label for="modpack_name">Modpack Name</label>
+        <input type="text" id="modpack_name" name="modpack_name">
+
+        <label for="player_limit">Player Limit</label>
+        <input type="number" id="player_limit" name="player_limit" min="0">
+
+        <label for="service_rcon_port">RCON Port</label>
+        <input type="number" id="service_rcon_port" name="service_rcon_port" min="1" max="65535">
+
+        <label for="service_rcon_pwd">RCON Password</label>
+        <input type="password" id="service_rcon_pwd" name="service_rcon_pwd">
+
+        <button type="submit" class="submit-btn">Create Service</button>
+    </form>
+
+    <a href="/services/" class="btn btn-secondary" style="margin-top:12px">Cancel</a>
+    <p class="footer-text">&copy;2026 GR_Desk, FOSS created by GoobyFRS | Logged In as: {{ loggedInTech }}</p>
+</div>
+{% endblock %}

@@ -1,113 +1,232 @@
 #!/usr/bin/env python3
-import json
+"""ITSM Core module for ticket management operations.
+
+Provides routes for viewing, updating, and managing IT service tickets
+including status changes, note additions, and ticket console views.
+"""
+
 import logging
 from datetime import datetime
-from decorators import technician_required, manager_required
+from typing import Any
 
-from flask import Blueprint, render_template, request, session, jsonify, redirect, url_for
+from flask import (
+    Blueprint,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 
-import local_handlers.local_webhook_handler as local_webhook_handler
+from decorators import technician_required
 from local_handlers.local_config_loader import load_core_config
+from local_handlers.local_storage_handler import load_tickets, save_tickets
+import local_handlers.local_webhook_handler as local_webhook_handler
 
 core_config = load_core_config()
-TICKETS_FILE = core_config["tickets_file"]
-BUILDID = "1.0.0"
+BUILD_ID: str = "1.0.0"
 
-itsm_core_bp = Blueprint('itsm_core', __name__, url_prefix='/itsm')
+itsm_core_bp = Blueprint("itsm_core", __name__, url_prefix="/itsm")
 
-def load_tickets():
-    try:
-        with open(TICKETS_FILE, "r") as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return []
-    except json.JSONDecodeError:
-        logging.error("Ticket file is empty or invalid JSON; treating as empty list.")
-        return []
-
-def save_tickets(tickets):
-    with open(TICKETS_FILE, "w") as f:
-        json.dump(tickets, f, indent=4)
-
-@itsm_core_bp.route('/dashboard')
+@itsm_core_bp.route("/dashboard")
 @technician_required
-def itsm_dashboard():
+def itsm_dashboard() -> str:
+    """Display the ITSM dashboard with open tickets.
+
+    Shows all tickets that are not closed or cancelled.
+
+    Returns:
+        Rendered HTML template for the ITSM dashboard.
+    """
     tickets = load_tickets()
-    open_tickets = [t for t in tickets if t["ticket_status"] not in ["closed", "cancelled"]]
-    return render_template("itsm_dashboard.html", tickets=open_tickets,
-                         loggedInTech=session["technician"], BUILDID=BUILDID)
+    open_tickets = [
+        t for t in tickets
+        if t["ticket_status"] not in ["closed", "cancelled"]
+    ]
+    return render_template(
+        "itsm_dashboard.html",
+        tickets=open_tickets,
+        loggedInTech=session["technician"],
+        BUILDID=BUILD_ID,
+    )
 
 
-@itsm_core_bp.route('/')
-def itsm_root():
-    return redirect(url_for('itsm_core.itsm_dashboard'))
+@itsm_core_bp.route("/")
+def itsm_root() -> Any:
+    """Redirect root ITSM path to dashboard.
 
-@itsm_core_bp.route('/console/<ticket_number>', methods=["GET", "POST"])
+    Returns:
+        Redirect response to ITSM dashboard.
+    """
+    return redirect(url_for("itsm_core.itsm_dashboard"))
+
+VALID_TICKET_STATUSES: list[str] = [
+    "new", "in_progress", "on_hold", "closed", "cancelled"
+]
+
+
+@itsm_core_bp.route("/console/<ticket_number>", methods=["GET", "POST"])
 @technician_required
-def itsm_console(ticket_number):
+def itsm_console(ticket_number: str) -> tuple[Any, int] | str:
+    """Display or update a ticket in the ITSM console.
+
+    Handles both GET requests (display ticket) and POST requests
+    (update status or add notes).
+
+    Args:
+        ticket_number: The unique ticket identifier.
+
+    Returns:
+        For GET: Rendered ticket console template or 404 page.
+        For POST: JSON response with success/error message.
+    """
     if request.method == "POST":
-        action = request.form.get("action")
+        return _handle_console_post(ticket_number)
 
-        if action == "status":
-            new_status = request.form.get("status")
-            valid_statuses = ["new", "in_progress", "on_hold", "closed", "cancelled"]
+    return _handle_console_get(ticket_number)
 
-            if new_status not in valid_statuses:
-                return jsonify({"error": "Invalid status"}), 400
 
-            tickets = load_tickets()
-            for ticket in tickets:
-                if ticket["ticket_number"] == ticket_number:
-                    old_status = ticket["ticket_status"]
-                    ticket["ticket_status"] = new_status
+def _handle_console_post(ticket_number: str) -> tuple[Any, int]:
+    """Handle POST requests for ticket console actions.
 
-                    if new_status == "closed":
-                        ticket["ticket_closed_timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    elif new_status == "in_progress":
-                        ticket["ticket_acknowledged_timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    Args:
+        ticket_number: The unique ticket identifier.
 
-                    save_tickets(tickets)
-                    logging.info(f"Ticket {ticket_number} status updated to {new_status} by {session['technician']}")
+    Returns:
+        JSON response tuple with message and HTTP status code.
+    """
+    action = request.form.get("action")
 
-                    try:
-                        local_webhook_handler.notify_ticket_event(
-                            ticket_number=ticket_number,
-                            ticket_status=new_status,
-                            ticket_subject=ticket.get("ticket_subject", "")
-                        )
-                    except Exception as e:
-                        logging.error(f"Webhook notification failed: {str(e)}")
+    if action == "status":
+        return _update_ticket_status(ticket_number)
+    elif action == "note":
+        return _add_ticket_note(ticket_number)
 
-                    return jsonify({"success": True, "message": f"Ticket updated to {new_status}"})
+    return jsonify({"error": "Invalid action"}), 400
 
-            return jsonify({"error": "Ticket not found"}), 404
 
-        elif action == "note":
-            note_content = request.form.get("note")
-            if not note_content:
-                return jsonify({"error": "Note cannot be empty"}), 400
+def _update_ticket_status(ticket_number: str) -> tuple[Any, int]:
+    """Update the status of a ticket.
 
-            tickets = load_tickets()
-            for ticket in tickets:
-                if ticket["ticket_number"] == ticket_number:
-                    note_entry = {
-                        "author": session["technician"],
-                        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        "content": note_content
-                    }
-                    ticket["ticket_worknotes"].append(note_entry)
-                    save_tickets(tickets)
-                    logging.info(f"Note added to {ticket_number} by {session['technician']}")
-                    return jsonify({"success": True, "message": "Note added successfully"})
+    Args:
+        ticket_number: The unique ticket identifier.
 
-            return jsonify({"error": "Ticket not found"}), 404
+    Returns:
+        JSON response tuple with success/error message and HTTP status code.
+    """
+    new_status = request.form.get("status")
 
-    # GET request - display ticket console
+    if new_status not in VALID_TICKET_STATUSES:
+        return jsonify({"error": "Invalid status"}), 400
+
     tickets = load_tickets()
-    ticket = next((t for t in tickets if t["ticket_number"] == ticket_number), None)
+    for ticket in tickets:
+        if ticket["ticket_number"] != ticket_number:
+            continue
+
+        ticket["ticket_status"] = new_status
+
+        if new_status == "closed":
+            ticket["ticket_closed_timestamp"] = datetime.now().strftime(
+                "%Y-%m-%d %H:%M:%S"
+            )
+        elif new_status == "in_progress":
+            ticket["ticket_acknowledged_timestamp"] = datetime.now().strftime(
+                "%Y-%m-%d %H:%M:%S"
+            )
+
+        save_tickets(tickets)
+        logging.info(
+            f"Ticket {ticket_number} status updated to {new_status} "
+            f"by {session['technician']}"
+        )
+
+        _send_webhook_notification(
+            ticket_number, new_status, ticket.get("ticket_subject", "")
+        )
+
+        return jsonify({
+            "success": True,
+            "message": f"Ticket updated to {new_status}"
+        }), 200
+
+    return jsonify({"error": "Ticket not found"}), 404
+
+
+def _add_ticket_note(ticket_number: str) -> tuple[Any, int]:
+    """Add a note to a ticket.
+
+    Args:
+        ticket_number: The unique ticket identifier.
+
+    Returns:
+        JSON response tuple with success/error message and HTTP status code.
+    """
+    note_content = request.form.get("note")
+    if not note_content:
+        return jsonify({"error": "Note cannot be empty"}), 400
+
+    tickets = load_tickets()
+    for ticket in tickets:
+        if ticket["ticket_number"] != ticket_number:
+            continue
+
+        note_entry = {
+            "author": session["technician"],
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "content": note_content,
+        }
+        ticket["ticket_worknotes"].append(note_entry)
+        save_tickets(tickets)
+        logging.info(
+            f"Note added to {ticket_number} by {session['technician']}"
+        )
+        return jsonify({"success": True, "message": "Note added successfully"}), 200
+
+    return jsonify({"error": "Ticket not found"}), 404
+
+
+def _send_webhook_notification(
+    ticket_number: str, ticket_status: str, ticket_subject: str
+) -> None:
+    """Send webhook notification for ticket event.
+
+    Args:
+        ticket_number: The unique ticket identifier.
+        ticket_status: The new ticket status.
+        ticket_subject: The ticket subject line.
+    """
+    try:
+        local_webhook_handler.notify_ticket_event(
+            ticket_number=ticket_number,
+            ticket_status=ticket_status,
+            ticket_subject=ticket_subject,
+        )
+    except Exception as e:
+        logging.error(f"Webhook notification failed: {e}")
+
+
+def _handle_console_get(ticket_number: str) -> tuple[str, int] | str:
+    """Handle GET request for ticket console display.
+
+    Args:
+        ticket_number: The unique ticket identifier.
+
+    Returns:
+        Rendered ticket console template or 404 page with status code.
+    """
+    tickets = load_tickets()
+    ticket = next(
+        (t for t in tickets if t["ticket_number"] == ticket_number), None
+    )
 
     if not ticket:
         return render_template("404.html"), 404
 
-    return render_template("itsm_console.html", ticket=ticket,
-                         loggedInTech=session["technician"], BUILDID=BUILDID)
+    return render_template(
+        "itsm_console.html",
+        ticket=ticket,
+        loggedInTech=session["technician"],
+        BUILDID=BUILD_ID,
+    )

@@ -6,6 +6,7 @@ tickets_file: "./my_data/tickets.json"
 employee_file: "./my_data/employees.json"
 changes_file: "./my_data/changes.json"
 customers_file: "./my_data/customers.json"
+services_file: "./my_data/services.json"
 
 # Logging
 logging:

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Services Dashboard - gr_desk{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="logo">
+        <img src="https://raw.githubusercontent.com/GoobyFRS/gr_desk/refs/heads/main/static/gr_desk-color.png" alt="gr_desk Logo">
+    </div>
+    <h2>Services Dashboard{% if customer_filter %} - Customer {{ customer_filter }}{% endif %}</h2>
+
+    <div class="ticket-details">
+        <a href="/services/create" class="btn">Create New Service</a>
+        {% if show_all %}
+        <a href="/services/" class="btn btn-secondary">Show Active Only</a>
+        {% else %}
+        <a href="/services/all" class="btn btn-secondary">Show All Services</a>
+        {% endif %}
+
+        <h3 style="margin-top:18px">Services</h3>
+        <table class="ticket-table">
+            <thead>
+                <tr>
+                    <th>Service ID</th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Provisioning</th>
+                    <th>Customer</th>
+                    <th>Region</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for service in services %}
+                <tr>
+                    <td>{{ service.service_id }}</td>
+                    <td>{{ service.service_name }}</td>
+                    <td>{{ service.service_type }}</td>
+                    <td>
+                        <span class="status-badge status-{{ service.service_status }}">
+                            {{ service.service_status }}
+                        </span>
+                    </td>
+                    <td>{{ service.provisioning_status }}</td>
+                    <td>{{ service.customer_id or 'N/A' }}</td>
+                    <td>{{ service.region or 'N/A' }}</td>
+                    <td><a href="/services/console/{{ service.service_id }}" class="btn btn-sm">Manage</a></td>
+                </tr>
+                {% else %}
+                <tr><td colspan="8" style="text-align:center">No services found</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="/services/export/csv" class="btn btn-secondary" style="margin-top:12px">Export to CSV</a>
+        <a href="/dashboard" class="btn btn-secondary" style="margin-top:12px">Back to Dashboard</a>
+        <p class="footer-text">&copy;2026 GR_Desk, FOSS created by GoobyFRS | Logged In as: {{ loggedInTech }}</p>
+    </div>
+</div>
+{% endblock %}

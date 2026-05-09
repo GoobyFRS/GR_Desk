@@ -71,7 +71,7 @@ def create_change(
         change_requestor: Name or ID of person requesting the change.
         change_subject: Short title of the change.
         change_description: Detailed description of the change.
-        **kwargs: Optional fields including assigned_team_queue,
+        **kwargs: Optional fields including assigned_queue,
             change_implementor, change_rollback_plan, change_implement_plan,
             change_test_plan, change_start_timestamp, change_end_timestamp,
             change_to_appid.
@@ -85,7 +85,7 @@ def create_change(
         "change_number": get_next_change_number(),
         "change_status": "new",
         "change_requestor": change_requestor,
-        "assigned_team_queue": kwargs.get("assigned_team_queue", "support"),
+        "assigned_queue": kwargs.get("assigned_queue", "support"),
         "change_implementor": kwargs.get("change_implementor"),
         "change_subject": change_subject,
         "change_description": change_description,

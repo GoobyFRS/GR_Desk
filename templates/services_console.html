@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}{{ service.service_name }} - Service Console{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="logo">
+        <img src="https://raw.githubusercontent.com/GoobyFRS/gr_desk/refs/heads/main/static/gr_desk-color.png" alt="gr_desk Logo">
+    </div>
+    <h2>Service Console: {{ service.service_id }}</h2>
+
+    <div class="ticket-details">
+        <h3>{{ service.service_name }}</h3>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <h3>Status</h3>
+                <div class="kpi-value">{{ service.service_status }}</div>
+            </div>
+            <div class="kpi-card">
+                <h3>Provisioning</h3>
+                <div class="kpi-value">{{ service.provisioning_status }}</div>
+            </div>
+            <div class="kpi-card">
+                <h3>Type</h3>
+                <div class="kpi-value">{{ service.service_type }}</div>
+            </div>
+            <div class="kpi-card">
+                <h3>Region</h3>
+                <div class="kpi-value">{{ service.region or 'N/A' }}</div>
+            </div>
+        </div>
+
+        <h3 style="margin-top:18px">Service Details</h3>
+        <table class="ticket-table">
+            <tbody>
+                <tr><td><strong>Service ID</strong></td><td>{{ service.service_id }}</td></tr>
+                <tr><td><strong>UUID</strong></td><td>{{ service.uuid }}</td></tr>
+                <tr><td><strong>SKU</strong></td><td>{{ service.service_sku or 'N/A' }}</td></tr>
+                <tr><td><strong>Customer ID</strong></td><td>{{ service.customer_id or 'N/A' }}</td></tr>
+                <tr><td><strong>IP Address</strong></td><td>{{ service.service_ip or 'Not Assigned' }}</td></tr>
+                <tr><td><strong>Subdomain</strong></td><td>{{ service.service_subdomain or 'N/A' }}</td></tr>
+                <tr><td><strong>Provision Source</strong></td><td>{{ service.service_provision_source or 'N/A' }}</td></tr>
+            </tbody>
+        </table>
+
+        <h3 style="margin-top:18px">Infrastructure</h3>
+        <table class="ticket-table">
+            <tbody>
+                <tr><td><strong>Node ID</strong></td><td>{{ service.node_id or 'N/A' }}</td></tr>
+                <tr><td><strong>Cluster ID</strong></td><td>{{ service.cluster_id or 'N/A' }}</td></tr>
+                <tr><td><strong>RAM</strong></td><td>{% if service.allocated_ram_mb %}{{ service.allocated_ram_mb }} MB{% else %}N/A{% endif %}</td></tr>
+                <tr><td><strong>Disk</strong></td><td>{% if service.allocated_disk_gb %}{{ service.allocated_disk_gb }} GB{% else %}N/A{% endif %}</td></tr>
+                <tr><td><strong>CPU Cores</strong></td><td>{{ service.allocated_cpu_cores or 'N/A' }}</td></tr>
+            </tbody>
+        </table>
+
+        {% if service.service_type == 'minecraft' %}
+        <h3 style="margin-top:18px">Game Server Configuration</h3>
+        <table class="ticket-table">
+            <tbody>
+                <tr><td><strong>Minecraft Version</strong></td><td>{{ service.minecraft_version or 'N/A' }}</td></tr>
+                <tr><td><strong>Server Type</strong></td><td>{{ service.server_type or 'N/A' }}</td></tr>
+                <tr><td><strong>Modpack</strong></td><td>{{ service.modpack_name or 'None' }}</td></tr>
+                <tr><td><strong>Player Limit</strong></td><td>{{ service.player_limit or 'N/A' }}</td></tr>
+                <tr><td><strong>RCON Port</strong></td><td>{{ service.service_rcon_port or 'N/A' }}</td></tr>
+            </tbody>
+        </table>
+        {% endif %}
+
+        <h3 style="margin-top:18px">Timestamps</h3>
+        <table class="ticket-table">
+            <tbody>
+                <tr><td><strong>Created</strong></td><td>{{ service.service_created_timestamp }}</td></tr>
+                <tr><td><strong>Last Updated</strong></td><td>{{ service.service_updated_timestamp }}</td></tr>
+                <tr><td><strong>Terminated</strong></td><td>{{ service.service_terminated_timestamp or 'N/A' }}</td></tr>
+            </tbody>
+        </table>
+
+        <h3 style="margin-top:18px">Actions</h3>
+
+        <form method="POST" action="/services/console/{{ service.service_id }}" style="display:inline">
+            <input type="hidden" name="action" value="status">
+            <label for="service_status">Service Status:</label>
+            <select name="service_status" id="service_status">
+                <option value="">-- No Change --</option>
+                {% for status in valid_statuses %}
+                <option value="{{ status }}" {% if service.service_status == status %}selected{% endif %}>{{ status }}</option>
+                {% endfor %}
+            </select>
+            <label for="provisioning_status">Provisioning Status:</label>
+            <select name="provisioning_status" id="provisioning_status">
+                <option value="">-- No Change --</option>
+                {% for status in valid_provisioning_statuses %}
+                <option value="{{ status }}" {% if service.provisioning_status == status %}selected{% endif %}>{{ status }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="status-btn">Update Status</button>
+        </form>
+
+        <a href="/services/" class="btn btn-secondary" style="margin-top:12px">Back to Services</a>
+        {% if service.customer_id %}
+        <a href="/services/customer/{{ service.customer_id }}" class="btn btn-secondary" style="margin-top:12px">View Customer Services</a>
+        {% endif %}
+
+        <p class="footer-text">&copy;2026 GR_Desk, FOSS created by GoobyFRS | Logged In as: {{ loggedInTech }}</p>
+    </div>
+</div>
+{% endblock %}
