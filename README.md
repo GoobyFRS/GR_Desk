@@ -268,8 +268,9 @@ colors:
 
 2. Clone the repository and set up virtual environment:
    ```bash
-   cd /var/www/grcore
-   sudo -u www-data git clone <repository-url> .
+   cd /var/www/
+   sudo -u www-data git clone https://github.com/GoobyFRS/GR_Desk.git
+   cd GR_Desk
    sudo -u www-data python3 -m venv venv
    sudo -u www-data venv/bin/pip install -r requirements.txt
    ```
@@ -293,37 +294,6 @@ colors:
    sudo systemctl status grcore
    sudo journalctl -u grcore -f  # View logs
    ```
-
-### Nginx Configuration (Recommended)
-
-Create `/etc/nginx/sites-available/grcore`:
-
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
-
-    location / {
-        proxy_pass http://unix:/run/grcore/grcore.sock;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    location /static {
-        alias /var/www/grcore/servicedesk/static;
-        expires 30d;
-    }
-}
-```
-
-Enable the site:
-```bash
-sudo ln -s /etc/nginx/sites-available/grcore /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl reload nginx
-```
 
 ### Service Commands
 

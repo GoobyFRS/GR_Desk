@@ -16,22 +16,22 @@
 
 [Unit]
 Description=GR_Core - IT Service Management Platform
-Documentation=https://github.com/your-repo/grcore
+Documentation=https://github.com/GoobyFRS/GR_Desk/wiki
 After=network.target
 
 [Service]
 Type=notify
-User=www-data
+User=$USER
 Group=www-data
-RuntimeDirectory=grcore
-WorkingDirectory=/var/www/grcore
-Environment="PATH=/var/www/grcore/venv/bin"
+RuntimeDirectory=GR_Desk
+WorkingDirectory=/var/www/GR_Desk
+Environment="PATH=/var/www/GR_Desk/venv/bin"
 Environment="PYTHONUNBUFFERED=1"
-ExecStart=/var/www/grcore/venv/bin/gunicorn \
+ExecStart=/var/www/GR_Desk/venv/bin/gunicorn \
     --workers 3 \
-    --bind unix:/run/grcore/grcore.sock \
-    --access-logfile /var/log/grcore/access.log \
-    --error-logfile /var/log/grcore/error.log \
+    --bind unix:/run/GR_Desk/grcore.sock \
+    --access-logfile /var/log/GR_Desk/access.log \
+    --error-logfile /var/log/GR_Desk/error.log \
     app:app
 ExecReload=/bin/kill -s HUP $MAINPID
 KillMode=mixed
