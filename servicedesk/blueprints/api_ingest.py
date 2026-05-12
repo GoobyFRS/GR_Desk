@@ -293,90 +293,69 @@ def _build_tailscale_body(event_type: str, data: dict[str, Any], timestamp: str)
 
 @api_ingest_bp.route("/uptime-kuma", methods=["POST"])
 def uptime_kuma_webhook() -> tuple[Response, int]:
-    """Handle incoming Uptime Kuma webhooks.
+    payload = request.get_json()
+    if not payload:
+        return jsonify({"error": "Invalid JSON payload"}), 400
 
-    Uptime Kuma sends webhooks when monitors change state (up/down).
+    monitor = payload.get("monitor") or {}
+    heartbeat = payload.get("heartbeat") or {}
+    msg = payload.get("msg", "No message provided")
 
-    Returns:
-        JSON response with status.
-    """
-    config = current_app.config["APP_CONFIG"]
-    webhook_config = config.get("webhooks", {}).get("ingest", {}).get("uptime_kuma", {})
+    # Ignore test payloads — monitor and heartbeat are both null
+    if not monitor and not heartbeat:
+        logger.info(f"Uptime Kuma test payload received, ignoring: {msg}")
+        return jsonify({"status": "test payload ignored"}), 200
 
-    if not webhook_config.get("enabled", False):
-        logger.warning("Uptime Kuma webhook received but not enabled")
-        return jsonify({"error": "Webhook not enabled"}), 403
-
-    # Verify secret token if configured
-    expected_token = webhook_config.get("token", "")
-    if expected_token:
-        auth_header = request.headers.get("Authorization", "")
-        provided_token = auth_header.replace("Bearer ", "") if auth_header else ""
-        if not hmac.compare_digest(provided_token, expected_token):
-            logger.warning("Uptime Kuma webhook token verification failed")
-            return jsonify({"error": "Invalid token"}), 401
-
-    try:
-        payload = request.get_json()
-        if not payload:
-            return jsonify({"error": "Invalid JSON payload"}), 400
-    except Exception as e:
-        logger.error(f"Failed to parse Uptime Kuma webhook: {e}")
-        return jsonify({"error": "Invalid JSON"}), 400
-
-    # Extract monitor and heartbeat data
-    monitor = payload.get("monitor", {})
-    heartbeat = payload.get("heartbeat", {})
-    msg = payload.get("msg", "")
-
+    # Determine status
+    status = heartbeat.get("status", -1)  # 1 = up, 0 = down
     monitor_name = monitor.get("name", "Unknown Monitor")
     monitor_url = monitor.get("url", "")
-    status = heartbeat.get("status", 0)  # 0 = down, 1 = up, 2 = pending
-    status_text = {0: "DOWN", 1: "UP", 2: "PENDING"}.get(status, "UNKNOWN")
+    monitor_type = monitor.get("type", "")
+    hb_msg = heartbeat.get("msg", "")
+    hb_time = heartbeat.get("time", "")
 
-    # Only create tickets for DOWN events by default
-    create_for_up = webhook_config.get("create_ticket_on_up", False)
-    if status == 1 and not create_for_up:
-        logger.info(f"Uptime Kuma: {monitor_name} is UP, not creating ticket")
-        return jsonify({"status": "acknowledged", "action": "none"}), 200
-
-    # Determine severity
-    if status == 0:  # DOWN
-        impact = "high"
-        urgency = "high"
-        ticket_type = "Incident"
+    # Map status to impact/urgency
+    if status == 0:
+        impact, urgency = "high", "high"
+        status_label = "🔴 Down"
+    elif status == 1:
+        impact, urgency = "low", "low"
+        status_label = "🟢 Up"
     else:
-        impact = "low"
-        urgency = "low"
-        ticket_type = "Alert"
+        impact, urgency = "medium", "medium"
+        status_label = "⚠️ Unknown"
 
-    subject = f"[Uptime Kuma] {monitor_name} is {status_text}"
-    body = _build_uptime_kuma_body(monitor, heartbeat, msg)
+    subject = f"[Uptime Kuma] {monitor_name} is {status_label}"
+
+    body_lines = [
+        f"Monitor: {monitor_name}",
+        f"Status: {status_label}",
+        f"URL: {monitor_url}",
+        f"Type: {monitor_type}",
+        f"Time: {hb_time}",
+        f"Message: {hb_msg}",
+    ]
+    body = "\n".join(body_lines)
 
     metadata = {
         "monitor_id": monitor.get("id", ""),
-        "monitor_name": monitor_name,
-        "monitor_url": monitor_url,
-        "status": status_text,
-        "response_time": heartbeat.get("ping", ""),
+        "monitor_type": monitor_type,
+        "retries": heartbeat.get("retries", 0),
+        "important": heartbeat.get("important", False),
     }
 
     ticket = _create_ticket_from_webhook(
-        source="uptime-kuma",
+        source="uptime_kuma",
         subject=subject,
         body=body,
         requestor_name="Uptime Kuma",
-        ticket_type=ticket_type,
+        ticket_type="Alert",
         impact=impact,
         urgency=urgency,
         metadata=metadata,
     )
 
-    return jsonify({
-        "status": "success",
-        "ticket_number": ticket.ticket_number,
-    }), 201
-
+    return jsonify({"status": "success", "ticket": ticket.ticket_number}), 201
 
 def _build_uptime_kuma_body(
     monitor: dict[str, Any],
