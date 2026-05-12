@@ -128,13 +128,15 @@ def tailscale_webhook() -> tuple[Response, int]:
         return jsonify({"error": "Invalid JSON"}), 400
 
     # Extract event details
-    events = payload.get("events", [])
-    if not events:
-        return jsonify({"status": "no events"}), 200
+    if isinstance(payload, list):
+        events = payload
+    else:
+        events = payload.get("events", [])
 
     tickets_created = []
 
     for event in events:
+    
         event_type = event.get("type", "unknown")
         timestamp = event.get("timestamp", "")
         data = event.get("data", {})
