@@ -83,10 +83,10 @@ webhooks:
   # Inbound webhooks - receive data from external platforms
   ingest:
     tailscale:
-      enabled: false
+      enabled: true
       secret: ""  # Webhook secret for signature verification
     uptime_kuma:
-      enabled: false
+      enabled: true
       token: ""  # Bearer token for authentication
       create_ticket_on_up: false  # Only create tickets for DOWN events by default
     generic:
