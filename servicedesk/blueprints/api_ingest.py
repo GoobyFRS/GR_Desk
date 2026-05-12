@@ -258,21 +258,30 @@ def _build_tailscale_body(event_type: str, data: dict[str, Any], timestamp: str)
 
     if "node" in data:
         node = data["node"]
-        lines.append(f"  Node: {node.get('name', 'Unknown')}")
-        lines.append(f"  Node ID: {node.get('id', 'Unknown')}")
-        lines.append(f"  Addresses: {', '.join(node.get('addresses', []))}")
-
+        if isinstance(node, dict):
+            lines.append(f"  Node: {node.get('name', 'Unknown')}")
+            lines.append(f"  Node ID: {node.get('id', 'Unknown')}")
+            lines.append(f"  Addresses: {', '.join(node.get('addresses', []))}")
+        else:
+            lines.append(f"  Node: {node}")
+    
     if "user" in data:
         user = data["user"]
-        lines.append(f"  User: {user.get('displayName', 'Unknown')}")
-        lines.append(f"  Email: {user.get('loginName', 'Unknown')}")
+        if isinstance(user, dict):
+            lines.append(f"  User: {user.get('displayName', 'Unknown')}")
+            lines.append(f"  Email: {user.get('loginName', 'Unknown')}")
+        else:
+            lines.append(f"  User: {user}")
 
     if "policy" in data:
         lines.append("  Policy update detected")
 
     if "actor" in data:
         actor = data["actor"]
-        lines.append(f"  Actor: {actor.get('displayName', actor.get('loginName', 'Unknown'))}")
+        if isinstance(actor, dict):
+            lines.append(f"  Actor: {actor.get('displayName', actor.get('loginName', 'Unknown'))}")
+        else:
+            lines.append(f"  Actor: {actor}")
 
     return "\n".join(lines)
 
