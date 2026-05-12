@@ -151,7 +151,7 @@ def tailscale_webhook() -> tuple[Response, int]:
         metadata = {
             "event_type": event_type,
             "timestamp": timestamp,
-            "tailnet": payload.get("tailnet", ""),
+            "tailnet": "",
         }
 
         ticket = _create_ticket_from_webhook(
@@ -264,7 +264,7 @@ def _build_tailscale_body(event_type: str, data: dict[str, Any], timestamp: str)
             lines.append(f"  Addresses: {', '.join(node.get('addresses', []))}")
         else:
             lines.append(f"  Node: {node}")
-    
+
     if "user" in data:
         user = data["user"]
         if isinstance(user, dict):
