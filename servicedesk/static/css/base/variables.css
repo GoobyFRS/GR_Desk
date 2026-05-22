@@ -1,0 +1,179 @@
+/**
+ * Design System - CSS Custom Properties
+ * Never hardcode values - use these variables
+ */
+
+:root {
+    /* Color Palette - Brand */
+    --color-brand-primary: #2563eb;
+    --color-brand-primary-dark: #1d4ed8;
+    --color-brand-secondary: #64748b;
+
+    /* Color Palette - Semantic */
+    --color-success: #16a34a;
+    --color-success-dark: #15803d;
+    --color-success-bg: #dcfce7;
+    --color-success-border: #bbf7d0;
+    --color-success-text: #166534;
+
+    --color-warning: #ca8a04;
+    --color-warning-dark: #a16207;
+    --color-warning-bg: #fef3c7;
+    --color-warning-border: #fde68a;
+    --color-warning-text: #92400e;
+
+    --color-danger: #dc2626;
+    --color-danger-dark: #b91c1c;
+    --color-danger-bg: #fee2e2;
+    --color-danger-border: #fecaca;
+    --color-danger-text: #991b1b;
+
+    --color-info: #0891b2;
+    --color-info-dark: #0e7490;
+    --color-info-bg: #e0f2fe;
+    --color-info-border: #bae6fd;
+    --color-info-text: #075985;
+
+    --color-primary-bg: #dbeafe;
+    --color-primary-text: #1e40af;
+
+    --color-priority-high: #ea580c;
+
+    /* Focus ring colors */
+    --color-focus-ring: rgb(37 99 235 / 0.25);
+    --color-focus-ring-danger: rgb(220 38 38 / 0.25);
+
+    /* Color Palette - Neutrals */
+    --color-neutral-900: #0f172a;
+    --color-neutral-800: #1e293b;
+    --color-neutral-700: #334155;
+    --color-neutral-600: #475569;
+    --color-neutral-500: #64748b;
+    --color-neutral-400: #94a3b8;
+    --color-neutral-300: #cbd5e1;
+    --color-neutral-200: #e2e8f0;
+    --color-neutral-100: #f1f5f9;
+    --color-neutral-50: #f8fafc;
+
+    /* Surface Colors */
+    --color-surface: #ffffff;
+    --color-surface-alt: #f8fafc;
+    --color-border: #e2e8f0;
+
+    /* Typography - Font Families */
+    --font-heading: 'system-ui', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-body: 'system-ui', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'Fira Code', 'Consolas', 'Monaco', monospace;
+
+    /* Typography - Font Sizes */
+    --text-xs: 0.75rem;     /* 12px */
+    --text-sm: 0.875rem;    /* 14px */
+    --text-base: 1rem;      /* 16px */
+    --text-lg: 1.125rem;    /* 18px */
+    --text-xl: 1.25rem;     /* 20px */
+    --text-2xl: 1.5rem;     /* 24px */
+    --text-3xl: 1.875rem;   /* 30px */
+    --text-4xl: 2.25rem;    /* 36px */
+
+    /* Typography - Line Heights */
+    --leading-tight: 1.25;
+    --leading-normal: 1.5;
+    --leading-relaxed: 1.625;
+
+    /* Typography - Font Weights */
+    --font-normal: 400;
+    --font-medium: 500;
+    --font-semibold: 600;
+    --font-bold: 700;
+
+    /* Spacing Scale (4px base) */
+    --space-0: 0;
+    --space-1: 0.25rem;     /* 4px */
+    --space-2: 0.5rem;      /* 8px */
+    --space-3: 0.75rem;     /* 12px */
+    --space-4: 1rem;        /* 16px */
+    --space-5: 1.25rem;     /* 20px */
+    --space-6: 1.5rem;      /* 24px */
+    --space-8: 2rem;        /* 32px */
+    --space-10: 2.5rem;     /* 40px */
+    --space-12: 3rem;       /* 48px */
+    --space-16: 4rem;       /* 64px */
+
+    /* Layout */
+    --max-width-content: 72ch;
+    --max-width-page: 1200px;
+    --navbar-height: 3.5rem;
+
+    /* Borders */
+    --radius-sm: 0.25rem;   /* 4px */
+    --radius-md: 0.375rem;  /* 6px */
+    --radius-lg: 0.5rem;    /* 8px */
+    --radius-xl: 0.75rem;   /* 12px */
+    --radius-full: 9999px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+    /* Transitions */
+    --transition-fast: 150ms ease;
+    --transition-normal: 250ms ease;
+    --transition-slow: 350ms ease;
+
+    /* Z-Index Scale */
+    --z-dropdown: 100;
+    --z-sticky: 200;
+    --z-modal: 300;
+    --z-tooltip: 400;
+
+    /* Breakpoints (for reference - use in media queries) */
+    --bp-sm: 640px;
+    --bp-md: 768px;
+    --bp-lg: 1024px;
+    --bp-xl: 1280px;
+}
+
+/* Dark Mode - Respects user color scheme preference */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-surface: #0f172a;
+        --color-surface-alt: #1e293b;
+        --color-border: #334155;
+
+        /* Inverted neutral scale for dark mode */
+        --color-neutral-900: #f8fafc;
+        --color-neutral-800: #f1f5f9;
+        --color-neutral-700: #e2e8f0;
+        --color-neutral-600: #cbd5e1;
+        --color-neutral-500: #94a3b8;
+        --color-neutral-400: #64748b;
+        --color-neutral-300: #475569;
+        --color-neutral-200: #334155;
+        --color-neutral-100: #1e293b;
+        --color-neutral-50: #0f172a;
+
+        /* Semantic colors for dark mode */
+        --color-success-bg: #052e16;
+        --color-success-border: #166534;
+        --color-success-text: #86efac;
+
+        --color-warning-bg: #422006;
+        --color-warning-border: #92400e;
+        --color-warning-text: #fde047;
+
+        --color-danger-bg: #450a0a;
+        --color-danger-border: #991b1b;
+        --color-danger-text: #fca5a5;
+
+        --color-info-bg: #083344;
+        --color-info-border: #0e7490;
+        --color-info-text: #67e8f9;
+
+        --color-primary-bg: #1e3a5f;
+        --color-primary-text: #93c5fd;
+
+        --color-priority-high: #fb923c;
+    }
+}

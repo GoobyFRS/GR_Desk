@@ -1,0 +1,27 @@
+# Employee Job Titles
+
+titles:
+  - "Support Technician"
+  - "Senior Support Technician"
+  - "Support Lead"
+  - "Support Manager"
+  - "System Administrator"
+  - "Senior System Administrator"
+  - "DevOps Engineer"
+  - "Network Engineer"
+  - "Security Analyst"
+  - "Database Administrator"
+  - "Software Developer"
+  - "Senior Software Developer"
+  - "Team Lead"
+  - "Project Manager"
+  - "Technical Writer"
+  - "Quality Assurance"
+  - "Billing Specialist"
+  - "Account Manager"
+  - "Director"
+  - "Vice President"
+  - "Chief Technology Officer"
+  - "Chief Executive Officer"
+
+default_title: "Support Technician"

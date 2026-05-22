@@ -1,0 +1,44 @@
+# GR_Core Systemd Service File
+#
+# Installation:
+#   1. Copy this file to /etc/systemd/system/grcore.service
+#   2. Update User, Group, and paths as needed
+#   3. Run: sudo systemctl daemon-reload
+#   4. Run: sudo systemctl enable grcore
+#   5. Run: sudo systemctl start grcore
+#
+# Commands:
+#   sudo systemctl start grcore    - Start the service
+#   sudo systemctl stop grcore     - Stop the service
+#   sudo systemctl restart grcore  - Restart the service
+#   sudo systemctl status grcore   - Check status
+#   sudo journalctl -u grcore -f   - View logs
+
+[Unit]
+Description=GR_Core - IT Service Management Platform
+Documentation=https://github.com/GoobyFRS/GR_Desk/wiki
+After=network.target
+
+[Service]
+Type=notify
+User=$USER
+Group=www-data
+RuntimeDirectory=GR_Desk
+WorkingDirectory=/var/www/GR_Desk
+Environment="PATH=/var/www/GR_Desk/venv/bin"
+Environment="PYTHONUNBUFFERED=1"
+ExecStart=/var/www/GR_Desk/venv/bin/gunicorn \
+    --workers 3 \
+    --bind unix:/run/GR_Desk/grcore.sock \
+    --access-logfile /var/log/GR_Desk/access.log \
+    --error-logfile /var/log/GR_Desk/error.log \
+    app:app
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

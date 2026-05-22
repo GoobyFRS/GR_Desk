@@ -1,0 +1,15 @@
+# Business Units
+
+business_units:
+  - "Support"
+  - "Engineering"
+  - "Operations"
+  - "Sales"
+  - "Billing"
+  - "Marketing"
+  - "Human Resources"
+  - "Finance"
+  - "Legal"
+  - "Executive"
+
+default_business_unit: "Support"

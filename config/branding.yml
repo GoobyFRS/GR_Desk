@@ -1,0 +1,28 @@
+# Platform Branding Configuration
+
+brand:
+  name: "GR_Core"
+  tagline: "IT Service Management"
+  logo_url: "/static/images/logo.png"
+  favicon_url: "/static/images/favicon.ico"
+
+colors:
+  primary: "#2563eb"
+  secondary: "#64748b"
+  success: "#22c55e"
+  warning: "#f59e0b"
+  danger: "#ef4444"
+  info: "#3b82f6"
+  background: "#f8fafc"
+  surface: "#ffffff"
+  text_primary: "#1e293b"
+  text_secondary: "#64748b"
+
+footer:
+  copyright: "GR_Core"
+  year: 2026
+  links:
+    - label: "Documentation"
+      url: "/docs"
+    - label: "Support"
+      url: "/support"

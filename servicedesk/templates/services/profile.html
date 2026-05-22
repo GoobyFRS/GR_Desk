@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}{{ service.service_name }} - Services - {{ branding.brand.name }}{% endblock %}
+
+{% block brand_url %}/services/dashboard{% endblock %}
+
+{% block navbar %}
+{% if employee_navbar and employee_navbar.navbar %}
+    {% for item in employee_navbar.navbar.links %}
+        <div class="nav-dropdown">
+            <a href="{{ item.url }}" class="nav-link">{{ item.label }}</a>
+            {% if item.submenu %}
+                <div class="dropdown-content">
+                    {% for subitem in item.submenu %}
+                        <a href="{{ subitem.url }}">{{ subitem.label }}</a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+    {% if current_user.is_admin %}
+        {% for item in employee_navbar.navbar.admin_links %}
+            <div class="nav-dropdown">
+                <a href="{{ item.url }}" class="nav-link">{{ item.label }}</a>
+                {% if item.submenu %}
+                    <div class="dropdown-content">
+                        {% for subitem in item.submenu %}
+                            <a href="{{ subitem.url }}">{{ subitem.label }}</a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endif %}
+{% endblock %}
+
+{% block navbar_actions %}
+<span class="user-info">{{ current_user.display_name }}</span>
+<a href="{{ url_for('public.logout') }}" class="btn btn-outline">Logout</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>{{ service.service_name }}</h1>
+        <p>{{ service.service_id }} - Created {{ service.service_created_timestamp }}</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{{ url_for('services.dashboard') }}" class="btn btn-outline">Back to List</a>
+    </div>
+</div>
+
+<form action="{{ url_for('services.edit_profile', service_id=service.service_id) }}" method="POST">
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Service Information</h3>
+            <span class="status status-{{ service.service_status }}">{{ service.service_status | capitalize }}</span>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="service_name">Service Name</label>
+                    <input type="text" class="form-control" id="service_name" name="service_name" value="{{ service.service_name }}" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="service_type">Service Type</label>
+                    <select class="form-control" id="service_type" name="service_type">
+                        {% for stype in service_types %}
+                        <option value="{{ stype }}" {% if service.service_type == stype %}selected{% endif %}>{{ stype }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="service_status">Status</label>
+                    <select class="form-control" id="service_status" name="service_status">
+                        {% for status in statuses %}
+                        <option value="{{ status }}" {% if service.service_status == status %}selected{% endif %}>{{ status | capitalize }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="service_ip">IP Address</label>
+                    <input type="text" class="form-control" id="service_ip" name="service_ip" value="{{ service.service_ip }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="service_subdomain">Subdomain</label>
+                    <input type="text" class="form-control" id="service_subdomain" name="service_subdomain" value="{{ service.service_subdomain }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="region">Region</label>
+                    <input type="text" class="form-control" id="region" name="region" value="{{ service.region }}">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Customer Link</h3>
+        </div>
+        <div class="card-body">
+            {% if customer %}
+            <div class="profile-grid">
+                <div class="profile-field">
+                    <span class="profile-field-label">Customer ID</span>
+                    <span class="profile-field-value">
+                        <a href="{{ url_for('crm.profile', uuid=customer.uuid) }}">{{ customer.customer_id }}</a>
+                    </span>
+                </div>
+                <div class="profile-field">
+                    <span class="profile-field-label">Customer Name</span>
+                    <span class="profile-field-value">{{ customer.full_name }}</span>
+                </div>
+                <div class="profile-field">
+                    <span class="profile-field-label">Email</span>
+                    <span class="profile-field-value">{{ customer.customer_contact_email }}</span>
+                </div>
+            </div>
+            {% else %}
+            <p class="text-muted">No customer linked to this service.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Infrastructure</h3>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="node_id">Node ID</label>
+                    <input type="text" class="form-control" id="node_id" name="node_id" value="{{ service.node_id }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="cluster_id">Cluster ID</label>
+                    <input type="text" class="form-control" id="cluster_id" name="cluster_id" value="{{ service.cluster_id }}">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Resource Allocation</h3>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="allocated_ram_mb">RAM (MB)</label>
+                    <input type="number" class="form-control" id="allocated_ram_mb" name="allocated_ram_mb" value="{{ service.allocated_ram_mb }}" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="allocated_disk_gb">Disk (GB)</label>
+                    <input type="number" class="form-control" id="allocated_disk_gb" name="allocated_disk_gb" value="{{ service.allocated_disk_gb }}" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="allocated_cpu_cores">CPU Cores</label>
+                    <input type="number" class="form-control" id="allocated_cpu_cores" name="allocated_cpu_cores" value="{{ service.allocated_cpu_cores }}" min="0" step="0.5">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if service.is_game_server %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Game Server Settings</h3>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="minecraft_version">Minecraft Version</label>
+                    <input type="text" class="form-control" id="minecraft_version" name="minecraft_version" value="{{ service.minecraft_version }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="server_type">Server Type</label>
+                    <input type="text" class="form-control" id="server_type" name="server_type" value="{{ service.server_type }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="modpack_name">Modpack Name</label>
+                    <input type="text" class="form-control" id="modpack_name" name="modpack_name" value="{{ service.modpack_name }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="player_limit">Player Limit</label>
+                    <input type="number" class="form-control" id="player_limit" name="player_limit" value="{{ service.player_limit }}" min="0">
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Timestamps</h3>
+        </div>
+        <div class="card-body">
+            <div class="profile-grid">
+                <div class="profile-field">
+                    <span class="profile-field-label">Created</span>
+                    <span class="profile-field-value">{{ service.service_created_timestamp }}</span>
+                </div>
+                <div class="profile-field">
+                    <span class="profile-field-label">Last Updated</span>
+                    <span class="profile-field-value">{{ service.service_updated_timestamp }}</span>
+                </div>
+                <div class="profile-field">
+                    <span class="profile-field-label">Terminated</span>
+                    <span class="profile-field-value">{{ service.service_terminated_timestamp or 'N/A' }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{{ url_for('services.dashboard') }}" class="btn btn-outline">Cancel</a>
+    </div>
+</form>
+{% endblock %}

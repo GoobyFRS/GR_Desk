@@ -1,0 +1,152 @@
+/**
+ * Typography - Base text styles
+ */
+
+/* Headings - use :where() for low specificity */
+:where(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--font-heading);
+    font-weight: var(--font-semibold);
+    line-height: var(--leading-tight);
+    color: var(--color-neutral-800);
+}
+
+h1 {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-4);
+}
+
+h2 {
+    font-size: var(--text-xl);
+    margin-bottom: var(--space-3);
+}
+
+h3 {
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-2);
+}
+
+h4 {
+    font-size: var(--text-base);
+    margin-bottom: var(--space-2);
+}
+
+h5,
+h6 {
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-2);
+}
+
+/* Body text */
+p {
+    margin-bottom: var(--space-4);
+    color: var(--color-neutral-700);
+}
+
+p:last-child {
+    margin-bottom: 0;
+}
+
+/* Links */
+a {
+    color: var(--color-brand-primary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    color: var(--color-brand-primary-dark);
+    text-decoration: underline;
+}
+
+/* Strong and emphasis */
+strong,
+b {
+    font-weight: var(--font-semibold);
+}
+
+em,
+i {
+    font-style: italic;
+}
+
+/* Small text */
+small {
+    font-size: var(--text-sm);
+    color: var(--color-neutral-500);
+}
+
+/* Code and preformatted */
+code,
+kbd,
+samp {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    background-color: var(--color-neutral-100);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+}
+
+pre {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    background-color: var(--color-neutral-100);
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    overflow-x: auto;
+    margin-bottom: var(--space-4);
+}
+
+pre code {
+    background: none;
+    padding: 0;
+}
+
+/* Lists */
+ul,
+ol {
+    margin-bottom: var(--space-4);
+    padding-left: var(--space-6);
+}
+
+li {
+    margin-bottom: var(--space-2);
+}
+
+li:last-child {
+    margin-bottom: 0;
+}
+
+/* Blockquote */
+blockquote {
+    margin: var(--space-4) 0;
+    padding: var(--space-4);
+    padding-left: var(--space-6);
+    border-left: 4px solid var(--color-brand-primary);
+    background-color: var(--color-neutral-50);
+    font-style: italic;
+    color: var(--color-neutral-600);
+}
+
+blockquote p:last-child {
+    margin-bottom: 0;
+}
+
+/* Horizontal rule */
+hr {
+    border: none;
+    border-top: 1px solid var(--color-border);
+    margin: var(--space-8) 0;
+}
+
+/* Mark/highlight */
+mark {
+    background-color: #fef3c7;
+    padding: var(--space-1);
+    border-radius: var(--radius-sm);
+}
+
+/* Abbreviation */
+abbr[title] {
+    text-decoration: underline dotted;
+    cursor: help;
+}

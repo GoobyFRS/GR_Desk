@@ -1,0 +1,19 @@
+# Service Types
+
+service_types:
+  - "Minecraft Server"
+  - "Web Hosting"
+  - "Database"
+  - "VPS"
+  - "Dedicated Server"
+  - "Game Server"
+  - "Application Hosting"
+  - "Storage"
+  - "Backup"
+  - "DNS"
+  - "Email"
+  - "CDN"
+  - "Load Balancer"
+  - "Other"
+
+default_service_type: "Game Server"

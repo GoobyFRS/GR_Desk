@@ -1,0 +1,82 @@
+/**
+ * Page Layout - Core page structure
+ * Uses CSS Grid for two-dimensional layout
+ */
+
+/* Page wrapper - full viewport grid layout */
+.page {
+    display: grid;
+    grid-template-columns: 1fr min(var(--max-width-page), 100%) 1fr;
+    grid-template-rows: auto 1fr auto;
+    min-height: 100dvh;
+}
+
+.page > * {
+    grid-column: 2;
+}
+
+/* Main content container */
+.container {
+    width: 100%;
+    max-width: var(--max-width-page);
+    margin-inline: auto;
+    padding: var(--space-4);
+}
+
+/* Responsive container padding */
+@media (min-width: 768px) {
+    .container {
+        padding: var(--space-6);
+    }
+}
+
+@media (min-width: 1024px) {
+    .container {
+        padding: var(--space-8);
+    }
+}
+
+/* Page header section */
+.page-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+}
+
+.page-header h1 {
+    margin-bottom: 0;
+}
+
+.page-header p {
+    margin-bottom: 0;
+    color: var(--color-neutral-500);
+}
+
+.page-header__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+}
+
+@media (min-width: 768px) {
+    .page-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+/* Section spacing */
+.section {
+    margin-bottom: var(--space-8);
+}
+
+.section:last-child {
+    margin-bottom: 0;
+}
+
+/* Content width limiter for readability */
+.prose {
+    max-width: var(--max-width-content);
+}
