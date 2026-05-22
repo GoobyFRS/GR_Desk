@@ -1,0 +1,252 @@
+/**
+ * Buttons - Button component styles
+ * Uses BEM naming: .btn, .btn--primary, .btn--lg
+ */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    font-family: inherit;
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    line-height: var(--leading-normal);
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    background-color: transparent;
+    color: var(--color-neutral-700);
+    transition: background-color var(--transition-fast),
+                border-color var(--transition-fast),
+                color var(--transition-fast),
+                box-shadow var(--transition-fast);
+}
+
+.btn:hover {
+    text-decoration: none;
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+    /* Additional visual indicator for colorblind accessibility */
+    text-decoration: line-through;
+    filter: grayscale(50%);
+}
+
+/* Button variants */
+.btn--primary {
+    background-color: var(--color-brand-primary);
+    border-color: var(--color-brand-primary);
+    color: white;
+}
+
+.btn--primary:hover {
+    background-color: var(--color-brand-primary-dark);
+    border-color: var(--color-brand-primary-dark);
+}
+
+.btn--secondary {
+    background-color: var(--color-neutral-500);
+    border-color: var(--color-neutral-500);
+    color: white;
+}
+
+.btn--secondary:hover {
+    background-color: var(--color-neutral-600);
+    border-color: var(--color-neutral-600);
+}
+
+.btn--success {
+    background-color: var(--color-success);
+    border-color: var(--color-success);
+    color: white;
+}
+
+.btn--success:hover {
+    background-color: var(--color-success-dark);
+    border-color: var(--color-success-dark);
+}
+
+.btn--warning {
+    background-color: var(--color-warning);
+    border-color: var(--color-warning);
+    color: white;
+}
+
+.btn--warning:hover {
+    background-color: var(--color-warning-dark);
+    border-color: var(--color-warning-dark);
+}
+
+.btn--danger {
+    background-color: var(--color-danger);
+    border-color: var(--color-danger);
+    color: white;
+}
+
+.btn--danger:hover {
+    background-color: var(--color-danger-dark);
+    border-color: var(--color-danger-dark);
+}
+
+.btn--outline {
+    background-color: transparent;
+    border-color: var(--color-border);
+    color: var(--color-neutral-700);
+}
+
+.btn--outline:hover {
+    background-color: var(--color-neutral-50);
+    border-color: var(--color-neutral-300);
+}
+
+.btn--ghost {
+    background-color: transparent;
+    border-color: transparent;
+    color: var(--color-neutral-600);
+}
+
+.btn--ghost:hover {
+    background-color: var(--color-neutral-100);
+    color: var(--color-neutral-800);
+}
+
+/* Button sizes */
+.btn--sm {
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--text-xs);
+    min-height: 2rem; /* Minimum for desktop */
+}
+
+.btn--lg {
+    padding: var(--space-3) var(--space-6);
+    font-size: var(--text-base);
+}
+
+/* Touch device minimum sizes (44x44px) */
+@media (pointer: coarse) {
+    .btn {
+        min-height: 2.75rem; /* 44px */
+        min-width: 2.75rem;
+    }
+
+    .btn--sm {
+        min-height: 2.75rem;
+        padding: var(--space-2) var(--space-3);
+    }
+}
+
+/* Button with icon only */
+.btn--icon {
+    padding: var(--space-2);
+    aspect-ratio: 1;
+}
+
+/* Button group */
+.btn-group {
+    display: inline-flex;
+}
+
+.btn-group .btn {
+    border-radius: 0;
+}
+
+.btn-group .btn:first-child {
+    border-top-left-radius: var(--radius-md);
+    border-bottom-left-radius: var(--radius-md);
+}
+
+.btn-group .btn:last-child {
+    border-top-right-radius: var(--radius-md);
+    border-bottom-right-radius: var(--radius-md);
+}
+
+.btn-group .btn:not(:last-child) {
+    border-right-width: 0;
+}
+
+/* Legacy class support (hyphenated aliases) */
+.btn-primary {
+    background-color: var(--color-brand-primary);
+    border-color: var(--color-brand-primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-brand-primary-dark);
+    border-color: var(--color-brand-primary-dark);
+}
+
+.btn-secondary {
+    background-color: var(--color-neutral-500);
+    border-color: var(--color-neutral-500);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: var(--color-neutral-600);
+    border-color: var(--color-neutral-600);
+}
+
+.btn-success {
+    background-color: var(--color-success);
+    border-color: var(--color-success);
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: var(--color-success-dark);
+    border-color: var(--color-success-dark);
+}
+
+.btn-warning {
+    background-color: var(--color-warning);
+    border-color: var(--color-warning);
+    color: white;
+}
+
+.btn-warning:hover {
+    background-color: var(--color-warning-dark);
+    border-color: var(--color-warning-dark);
+}
+
+.btn-danger {
+    background-color: var(--color-danger);
+    border-color: var(--color-danger);
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: var(--color-danger-dark);
+    border-color: var(--color-danger-dark);
+}
+
+.btn-outline {
+    background-color: transparent;
+    border-color: var(--color-border);
+    color: var(--color-neutral-700);
+}
+
+.btn-outline:hover {
+    background-color: var(--color-neutral-50);
+    border-color: var(--color-neutral-300);
+}
+
+.btn-sm {
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--text-xs);
+}
+
+.btn-lg {
+    padding: var(--space-3) var(--space-6);
+    font-size: var(--text-base);
+}

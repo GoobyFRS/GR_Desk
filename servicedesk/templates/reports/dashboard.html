@@ -1,0 +1,379 @@
+{% extends "base.html" %}
+
+{% block title %}Reports Dashboard - {{ branding.brand.name }}{% endblock %}
+
+{% block brand_url %}/reports/dashboard{% endblock %}
+
+{% block navbar %}
+{% if employee_navbar and employee_navbar.navbar %}
+    {% for item in employee_navbar.navbar.links %}
+        <div class="nav-dropdown">
+            <a href="{{ item.url }}" class="nav-link">{{ item.label }}</a>
+            {% if item.submenu %}
+                <div class="dropdown-content">
+                    {% for subitem in item.submenu %}
+                        <a href="{{ subitem.url }}">{{ subitem.label }}</a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+    {% if current_user.is_admin %}
+        {% for item in employee_navbar.navbar.admin_links %}
+            <div class="nav-dropdown">
+                <a href="{{ item.url }}" class="nav-link">{{ item.label }}</a>
+                {% if item.submenu %}
+                    <div class="dropdown-content">
+                        {% for subitem in item.submenu %}
+                            <a href="{{ subitem.url }}">{{ subitem.label }}</a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endif %}
+{% endblock %}
+
+{% block navbar_actions %}
+<span class="user-info">{{ current_user.display_name }}</span>
+<a href="{{ url_for('public.logout') }}" class="btn btn-outline">Logout</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Reports Dashboard</h1>
+        <p>Ticket analytics and reporting</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{{ url_for('reports.export_tickets') }}" class="btn btn-outline">Export All Tickets</a>
+        <a href="{{ url_for('reports.export_open_tickets') }}" class="btn btn-primary">Export Open Tickets</a>
+    </div>
+</div>
+
+<!-- Overview Stats -->
+<section class="stats-grid mb-6" aria-label="Ticket overview statistics">
+    <div class="stat-card">
+        <div class="stat-card-title">Total Tickets</div>
+        <div class="stat-card-value">{{ total_tickets }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-title">Active Tickets</div>
+        <div class="stat-card-value">{{ active_tickets }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-title">Resolved</div>
+        <div class="stat-card-value">{{ status_counts.resolved }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-title">Avg Resolution Time</div>
+        <div class="stat-card-value">{{ "%.1f"|format(resolution_stats.avg_resolution_hours) }}h</div>
+    </div>
+</section>
+
+<div class="grid grid-2">
+    <!-- Status Breakdown -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Status Breakdown</h3>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <caption class="sr-only">Ticket counts grouped by status</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Status</th>
+                        <th scope="col">Count</th>
+                        <th scope="col">Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for status, count in status_counts.items() %}
+                    <tr>
+                        <td>
+                            <span class="badge badge-{% if status == 'new' %}info{% elif status == 'in_progress' %}warning{% elif status == 'resolved' %}success{% elif status == 'cancelled' %}secondary{% else %}primary{% endif %}">
+                                {{ status | replace('_', ' ') | title }}
+                            </span>
+                        </td>
+                        <td>{{ count }}</td>
+                        <td>{% if total_tickets > 0 %}{{ "%.1f"|format(count / total_tickets * 100) }}%{% else %}0%{% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Time-Based Analysis -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Tickets Created</h3>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <caption class="sr-only">Tickets created by time period</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Time Period</th>
+                        <th scope="col">Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Last 7 Days</td>
+                        <td><strong>{{ time_buckets.last_7_days }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Last 14 Days</td>
+                        <td>{{ time_buckets.last_14_days }}</td>
+                    </tr>
+                    <tr>
+                        <td>Last 30 Days</td>
+                        <td>{{ time_buckets.last_30_days }}</td>
+                    </tr>
+                    <tr>
+                        <td>Last 60 Days</td>
+                        <td>{{ time_buckets.last_60_days }}</td>
+                    </tr>
+                    <tr>
+                        <td>Last 90 Days</td>
+                        <td>{{ time_buckets.last_90_days }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-2">
+    <!-- Queue Distribution -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Active Tickets by Queue</h3>
+        </div>
+        <div class="card-body">
+            {% if queue_counts %}
+            <table class="table">
+                <caption class="sr-only">Active ticket counts by queue</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Queue</th>
+                        <th scope="col">Active Tickets</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for queue, count in queue_counts.items() %}
+                    <tr>
+                        <td>{{ queue | title }}</td>
+                        <td>{{ count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-muted">No active tickets</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Impact Distribution -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Active Tickets by Impact</h3>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <caption class="sr-only">Active ticket counts by impact level</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Impact Level</th>
+                        <th scope="col">Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge badge-danger">Critical</span></td>
+                        <td>{{ impact_counts.critical }}</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-warning">High</span></td>
+                        <td>{{ impact_counts.high }}</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-info">Medium</span></td>
+                        <td>{{ impact_counts.medium }}</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-secondary">Low</span></td>
+                        <td>{{ impact_counts.low }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-2">
+    <!-- Source Distribution -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Tickets by Source</h3>
+        </div>
+        <div class="card-body">
+            {% if source_counts %}
+            <table class="table">
+                <caption class="sr-only">Ticket counts by source channel</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Source</th>
+                        <th scope="col">Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for source, count in source_counts.items() %}
+                    <tr>
+                        <td>{{ source | title }}</td>
+                        <td>{{ count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-muted">No tickets found</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Resolution Statistics -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Resolution Statistics</h3>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <caption class="sr-only">Resolution time statistics</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Metric</th>
+                        <th scope="col">Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Total Resolved</td>
+                        <td>{{ resolution_stats.total_resolved }}</td>
+                    </tr>
+                    <tr>
+                        <td>Average Resolution Time</td>
+                        <td>{{ "%.1f"|format(resolution_stats.avg_resolution_hours) }} hours</td>
+                    </tr>
+                    <tr>
+                        <td>Fastest Resolution</td>
+                        <td>{{ "%.1f"|format(resolution_stats.min_resolution_hours) }} hours</td>
+                    </tr>
+                    <tr>
+                        <td>Slowest Resolution</td>
+                        <td>{{ "%.1f"|format(resolution_stats.max_resolution_hours) }} hours</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Change Management Section -->
+<h2 class="mt-6 mb-4">Change Management</h2>
+
+<section class="stats-grid mb-6" aria-label="Change management overview">
+    <div class="stat-card">
+        <div class="stat-card-title">Total Changes</div>
+        <div class="stat-card-value">{{ total_changes }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-title">Active Changes</div>
+        <div class="stat-card-value">{{ active_changes }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-title">Completed</div>
+        <div class="stat-card-value">{{ change_status_counts.Completed }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-title">High Risk</div>
+        <div class="stat-card-value">{{ change_risk_counts.High }}</div>
+    </div>
+</section>
+
+<div class="grid grid-2">
+    <!-- Change Status Breakdown -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Changes by Status</h3>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <caption class="sr-only">Change counts grouped by status</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Status</th>
+                        <th scope="col">Count</th>
+                        <th scope="col">Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for status, count in change_status_counts.items() %}
+                    <tr>
+                        <td>
+                            <span class="status status-{{ status | lower }}">{{ status }}</span>
+                        </td>
+                        <td>{{ count }}</td>
+                        <td>{% if total_changes > 0 %}{{ "%.1f"|format(count / total_changes * 100) }}%{% else %}0%{% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Change Risk Breakdown -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Changes by Risk Level</h3>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <caption class="sr-only">Change counts grouped by risk level</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Risk Level</th>
+                        <th scope="col">Count</th>
+                        <th scope="col">Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="status status-risk-high">High</span></td>
+                        <td>{{ change_risk_counts.High }}</td>
+                        <td>{% if total_changes > 0 %}{{ "%.1f"|format(change_risk_counts.High / total_changes * 100) }}%{% else %}0%{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <td><span class="status status-risk-medium">Medium</span></td>
+                        <td>{{ change_risk_counts.Medium }}</td>
+                        <td>{% if total_changes > 0 %}{{ "%.1f"|format(change_risk_counts.Medium / total_changes * 100) }}%{% else %}0%{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <td><span class="status status-risk-low">Low</span></td>
+                        <td>{{ change_risk_counts.Low }}</td>
+                        <td>{% if total_changes > 0 %}{{ "%.1f"|format(change_risk_counts.Low / total_changes * 100) }}%{% else %}0%{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <td><span class="status status-risk-none">None</span></td>
+                        <td>{{ change_risk_counts.None }}</td>
+                        <td>{% if total_changes > 0 %}{{ "%.1f"|format(change_risk_counts.None / total_changes * 100) }}%{% else %}0%{% endif %}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

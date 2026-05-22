@@ -1,0 +1,38 @@
+/**
+ * Service Desk - Main Stylesheet
+ *
+ * This file imports all modular CSS components.
+ * No styles should be written directly in this file.
+ *
+ * File Organization:
+ *   base/      - Reset, variables, typography
+ *   layout/    - Page structure, grid, navbar, footer
+ *   components/ - Reusable UI components
+ *   utilities/  - Helper classes, accessibility
+ */
+
+/* Base - Reset and foundational styles */
+@import 'base/variables.css';
+@import 'base/reset.css';
+@import 'base/typography.css';
+
+/* Layout - Page structure */
+@import 'layout/page.css';
+@import 'layout/grid.css';
+@import 'layout/navbar.css';
+@import 'layout/footer.css';
+
+/* Components - UI components */
+@import 'components/buttons.css';
+@import 'components/forms.css';
+@import 'components/cards.css';
+@import 'components/tables.css';
+@import 'components/alerts.css';
+@import 'components/badges.css';
+@import 'components/tabs.css';
+@import 'components/worknotes.css';
+
+/* Utilities - Helper classes */
+@import 'utilities/accessibility.css';
+@import 'utilities/spacing.css';
+@import 'utilities/helpers.css';

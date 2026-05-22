@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}{{ ticket.ticket_number }} - {{ branding.brand.name }}{% endblock %}
+
+{% block brand_url %}/itsm/dashboard{% endblock %}
+
+{% block navbar %}
+{% if employee_navbar and employee_navbar.navbar %}
+    {% for item in employee_navbar.navbar.links %}
+        <div class="nav-dropdown">
+            <a href="{{ item.url }}" class="nav-link">{{ item.label }}</a>
+            {% if item.submenu %}
+                <div class="dropdown-content">
+                    {% for subitem in item.submenu %}
+                        <a href="{{ subitem.url }}">{{ subitem.label }}</a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+    {% if current_user.is_admin %}
+        {% for item in employee_navbar.navbar.admin_links %}
+            <div class="nav-dropdown">
+                <a href="{{ item.url }}" class="nav-link">{{ item.label }}</a>
+                {% if item.submenu %}
+                    <div class="dropdown-content">
+                        {% for subitem in item.submenu %}
+                            <a href="{{ subitem.url }}">{{ subitem.label }}</a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endif %}
+{% endblock %}
+
+{% block navbar_actions %}
+<span class="user-info">{{ current_user.display_name }}</span>
+<a href="{{ url_for('public.logout') }}" class="btn btn-outline">Logout</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="header-left">
+        <a href="{{ url_for('itsm.dashboard') }}" class="back-link">&larr; Back to Dashboard</a>
+        <h1>{{ ticket.ticket_number }}
+            {% if ticket.requestor_vip_status %}<span class="badge badge-vip">VIP</span>{% endif %}
+        </h1>
+        <p>{{ ticket.ticket_subject }}</p>
+    </div>
+    <div class="header-actions">
+        <span class="badge badge-{{ ticket.ticket_status }} badge-lg">
+            {{ ticket.ticket_status | replace('_', ' ') | title }}
+        </span>
+    </div>
+</div>
+
+<div class="console-grid">
+    <div class="console-main">
+        <div class="card">
+            <h3>Description</h3>
+            <div class="ticket-body" style="white-space: pre-wrap;">{{ ticket.ticket_body }}</div>
+        </div>
+
+        <div class="card">
+            <h3>Work Notes</h3>
+            <form method="POST" class="worknote-form">
+                <input type="hidden" name="action" value="add_worknote">
+                <label for="worknote" class="sr-only">Add a work note</label>
+                <textarea name="worknote" id="worknote" rows="3" placeholder="Add a work note..."></textarea>
+                <button type="submit" class="btn btn-secondary">Add Note</button>
+            </form>
+
+            <div class="worknotes-list">
+                {% for note in ticket.ticket_worknotes | reverse %}
+                <div class="worknote">
+                    <div class="worknote-header">
+                        <strong>{{ note.author }}</strong>
+                        <span class="timestamp">{{ note.timestamp }}</span>
+                    </div>
+                    <div class="worknote-content">{{ note.content }}</div>
+                </div>
+                {% else %}
+                <p class="empty-state">No work notes yet</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if ticket.ticket_status == 'resolved' %}
+        <div class="card">
+            <h3>Resolution</h3>
+            <p>{{ ticket.ticket_resolution_notes }}</p>
+            <small>Resolved: {{ ticket.ticket_closed_timestamp }}</small>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="console-sidebar">
+        <div class="card">
+            <h3>Ticket Details</h3>
+            <dl class="detail-list">
+                <dt>Requestor</dt>
+                <dd>{{ ticket.requestor_name }}<br><small>{{ ticket.requestor_username }}</small></dd>
+
+                <dt>Type</dt>
+                <dd>{{ ticket.ticket_type or 'General' }}</dd>
+
+                <dt>Queue</dt>
+                <dd>{{ ticket.assigned_queue | capitalize }}</dd>
+
+                <dt>Assigned To</dt>
+                <dd>{{ ticket.assigned_technician or 'Unassigned' }}</dd>
+
+                <dt>Impact</dt>
+                <dd><span class="badge badge-impact-{{ ticket.ticket_impact }}">{{ ticket.ticket_impact | capitalize }}</span></dd>
+
+                <dt>Urgency</dt>
+                <dd><span class="badge badge-urgency-{{ ticket.ticket_urgency }}">{{ ticket.ticket_urgency | capitalize }}</span></dd>
+
+                <dt>Escalation Level</dt>
+                <dd>{{ ticket.escalation_level }}</dd>
+
+                <dt>Created</dt>
+                <dd>{{ ticket.ticket_created_timestamp }}</dd>
+
+                {% if ticket.ticket_acknowledged_timestamp %}
+                <dt>Acknowledged</dt>
+                <dd>{{ ticket.ticket_acknowledged_timestamp }}</dd>
+                {% endif %}
+            </dl>
+        </div>
+
+        <div class="card">
+            <h3>Actions</h3>
+
+            {% if ticket.ticket_status not in ['resolved', 'cancelled'] %}
+            <form method="POST" class="action-form">
+                <input type="hidden" name="action" value="assign">
+                <button type="submit" class="btn btn-secondary btn-block">
+                    Assign to Me
+                </button>
+            </form>
+
+            <form method="POST" class="action-form">
+                <input type="hidden" name="action" value="update_status">
+                <label for="status">Update Status</label>
+                <select name="status" id="status">
+                    {% for status in statuses %}
+                    <option value="{{ status }}" {% if status == ticket.ticket_status %}selected{% endif %}>
+                        {{ status | replace('_', ' ') | title }}
+                    </option>
+                    {% endfor %}
+                </select>
+                {% if ticket.ticket_status != 'resolved' %}
+                <div id="resolution-notes" style="display: none;" aria-hidden="true">
+                    <label for="resolution_notes">Resolution Notes</label>
+                    <textarea name="resolution_notes" id="resolution_notes" rows="3"></textarea>
+                </div>
+                {% endif %}
+                <button type="submit" class="btn btn-primary btn-block">Update</button>
+            </form>
+
+            <form method="POST" class="action-form">
+                <input type="hidden" name="action" value="change_queue">
+                <label for="queue">Move to Queue</label>
+                <select name="queue" id="queue">
+                    {% for queue in queues %}
+                    <option value="{{ queue }}" {% if queue == ticket.assigned_queue %}selected{% endif %}>
+                        {{ queue | capitalize }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-secondary btn-block">Move</button>
+            </form>
+
+            <form method="POST" class="action-form">
+                <input type="hidden" name="action" value="escalate">
+                <button type="submit" class="btn btn-warning btn-block">
+                    Escalate Ticket
+                </button>
+            </form>
+            {% else %}
+            <p class="info-text">This ticket is {{ ticket.ticket_status }}.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('status').addEventListener('change', function() {
+    var resolutionDiv = document.getElementById('resolution-notes');
+    if (this.value === 'resolved') {
+        resolutionDiv.style.display = 'block';
+        resolutionDiv.setAttribute('aria-hidden', 'false');
+    } else {
+        resolutionDiv.style.display = 'none';
+        resolutionDiv.setAttribute('aria-hidden', 'true');
+    }
+});
+</script>
+{% endblock %}

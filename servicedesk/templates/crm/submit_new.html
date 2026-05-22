@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block title %}Create Customer - CRM - {{ branding.brand.name }}{% endblock %}
+
+{% block brand_url %}/crm/dashboard{% endblock %}
+
+{% block navbar %}
+{% if employee_navbar and employee_navbar.navbar %}
+    {% for item in employee_navbar.navbar.links %}
+        <div class="nav-dropdown">
+            <a href="{{ item.url }}" class="nav-link">{{ item.label }}</a>
+            {% if item.submenu %}
+                <div class="dropdown-content">
+                    {% for subitem in item.submenu %}
+                        <a href="{{ subitem.url }}">{{ subitem.label }}</a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+    {% if current_user.is_admin %}
+        {% for item in employee_navbar.navbar.admin_links %}
+            <div class="nav-dropdown">
+                <a href="{{ item.url }}" class="nav-link">{{ item.label }}</a>
+                {% if item.submenu %}
+                    <div class="dropdown-content">
+                        {% for subitem in item.submenu %}
+                            <a href="{{ subitem.url }}">{{ subitem.label }}</a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endif %}
+{% endblock %}
+
+{% block navbar_actions %}
+<span class="user-info">{{ current_user.display_name }}</span>
+<a href="{{ url_for('public.logout') }}" class="btn btn-outline">Logout</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Create New Customer</h1>
+        <p>Add a new customer account</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{{ url_for('crm.dashboard') }}" class="btn btn-outline">Back to List</a>
+    </div>
+</div>
+
+<form action="{{ url_for('crm.submit_new') }}" method="POST" data-validate>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Personal Information</h3>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="first_name">First Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="first_name" name="first_name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="last_name">Last Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="last_name" name="last_name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="preferred_name">Preferred Name</label>
+                    <input type="text" class="form-control" id="preferred_name" name="preferred_name">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="preferred_contact">Preferred Contact Method</label>
+                    <select class="form-control" id="preferred_contact" name="preferred_contact">
+                        <option value="email" selected>Email</option>
+                        <option value="discord">Discord</option>
+                        <option value="phone">Phone</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Gaming / Platform Information</h3>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="ingame_username">In-Game Username</label>
+                    <input type="text" class="form-control" id="ingame_username" name="ingame_username">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="discord_user_id">Discord User ID</label>
+                    <input type="text" class="form-control" id="discord_user_id" name="discord_user_id">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Account Settings</h3>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="account_status">Account Status</label>
+                    <select class="form-control" id="account_status" name="account_status">
+                        {% for status in statuses %}
+                        <option value="{{ status }}" {% if status == 'active' %}selected{% endif %}>{{ status | capitalize }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="fraud_risk">Fraud Risk Level</label>
+                    <select class="form-control" id="fraud_risk" name="fraud_risk">
+                        {% for level in fraud_risk_levels %}
+                        <option value="{{ level }}" {% if level == 'low' %}selected{% endif %}>{{ level | capitalize }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="account_value">Account Value/Tier</label>
+                    <input type="text" class="form-control" id="account_value" name="account_value" placeholder="e.g., Bronze, Silver, Gold">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" id="vip_status" name="vip_status">
+                        <label for="vip_status">VIP Customer</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" id="is_content_creator" name="is_content_creator">
+                        <label for="is_content_creator">Content Creator</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Billing Information</h3>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="vat_taxid">VAT / Tax ID</label>
+                    <input type="text" class="form-control" id="vat_taxid" name="vat_taxid" placeholder="For invoicing purposes">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="lifetime_value">Initial Lifetime Value ($)</label>
+                    <input type="number" class="form-control" id="lifetime_value" name="lifetime_value" step="0.01" min="0" value="0">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Communication Preferences</h3>
+        </div>
+        <div class="card-body">
+            <fieldset class="fieldset--borderless">
+                <legend class="sr-only">Communication preferences options</legend>
+                <div class="form-row">
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" id="marketing_opt_in" name="marketing_opt_in">
+                            <label for="marketing_opt_in">Marketing Communications Opt-In</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" id="maintenance_notifications" name="maintenance_notifications" checked>
+                            <label for="maintenance_notifications">Maintenance Notifications</label>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Platform Access</h3>
+        </div>
+        <div class="card-body">
+            <fieldset class="fieldset--borderless">
+                <legend class="sr-only">Platform access permissions</legend>
+                <div class="form-row">
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" id="has_freshrss_access" name="has_freshrss_access">
+                            <label for="has_freshrss_access">FreshRSS Access</label>
+                        </div>
+                        <input type="text" class="form-control mt-2" id="freshrss_username" name="freshrss_username" placeholder="FreshRSS Username">
+                    </div>
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" id="has_jellyfin_access" name="has_jellyfin_access">
+                            <label for="has_jellyfin_access">Jellyfin Access</label>
+                        </div>
+                        <input type="text" class="form-control mt-2" id="jellyfin_username" name="jellyfin_username" placeholder="Jellyfin Username">
+                    </div>
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" id="has_nextcloud_access" name="has_nextcloud_access">
+                            <label for="has_nextcloud_access">Nextcloud Access</label>
+                        </div>
+                        <input type="text" class="form-control mt-2" id="nextcloud_username" name="nextcloud_username" placeholder="Nextcloud Username">
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Create Customer</button>
+        <a href="{{ url_for('crm.dashboard') }}" class="btn btn-outline">Cancel</a>
+    </div>
+</form>
+{% endblock %}

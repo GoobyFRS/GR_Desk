@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Submit a Ticket{% endblock %}
+
+{% block description %}Submit a support ticket to get help from our team. We respond to all requests promptly.{% endblock %}
+
+{% block navbar %}
+{% if public_navbar and public_navbar.navbar %}
+    {% for item in public_navbar.navbar.links %}
+        <a href="{{ item.url }}">{{ item.label }}</a>
+    {% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block navbar_actions %}
+{% if current_user.is_authenticated %}
+    <span class="navbar__user">{{ current_user.display_name }}</span>
+    <a href="{{ url_for('itsm.dashboard') }}" class="btn btn--secondary">Dashboard</a>
+    <a href="{{ url_for('public.logout') }}" class="btn btn--outline">Logout</a>
+{% else %}
+    <a href="{{ url_for('public.login') }}" class="btn btn--secondary">Login</a>
+    <a href="{{ url_for('public.signup') }}" class="btn btn--outline">Sign Up</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<section class="section" aria-labelledby="hero-heading">
+    <header class="text-center mb-6">
+        <h1 id="hero-heading">{{ branding.brand.name }}</h1>
+        <p class="text-lg text-muted">{{ branding.brand.tagline }}</p>
+    </header>
+</section>
+
+<section class="section" aria-labelledby="ticket-form-heading">
+    <article class="card">
+        <div class="card__header">
+            <h2 id="ticket-form-heading">Submit a Support Ticket</h2>
+        </div>
+        <div class="card__body">
+            <p class="mb-4">Need help? Fill out the form below and our team will get back to you.</p>
+
+            <form method="POST" action="{{ url_for('public.submit_ticket') }}" data-validate novalidate>
+                <fieldset>
+                    <legend class="sr-only">Contact Information</legend>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="name">
+                                Your Name <span class="text-danger" aria-hidden="true">*</span>
+                                <span class="sr-only">(required)</span>
+                            </label>
+                            <input type="text" class="form-control" id="name" name="name" autocomplete="name" required aria-required="true">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="email">
+                                Email Address <span class="text-danger" aria-hidden="true">*</span>
+                                <span class="sr-only">(required)</span>
+                            </label>
+                            <input type="email" class="form-control" id="email" name="email" autocomplete="email" required aria-required="true">
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend class="sr-only">Ticket Details</legend>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="ticket_type">Ticket Type</label>
+                            <select class="form-control" id="ticket_type" name="ticket_type">
+                                {% for ticket_type in ticket_types %}
+                                    <option value="{{ ticket_type }}">{{ ticket_type }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="impact">Impact</label>
+                            <select class="form-control" id="impact" name="impact">
+                                {% for impact in impacts %}
+                                    <option value="{{ impact }}" {% if impact == 'low' %}selected{% endif %}>
+                                        {{ impact | capitalize }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <span class="form-hint" id="impact-hint">How broadly does this issue affect operations?</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="urgency">Urgency</label>
+                            <select class="form-control" id="urgency" name="urgency" aria-describedby="urgency-hint">
+                                {% for urgency in urgencies %}
+                                    <option value="{{ urgency }}" {% if urgency == 'low' %}selected{% endif %}>
+                                        {{ urgency | capitalize }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <span class="form-hint" id="urgency-hint">How quickly do you need this resolved?</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="subject">
+                            Subject <span class="text-danger" aria-hidden="true">*</span>
+                            <span class="sr-only">(required)</span>
+                        </label>
+                        <input type="text" class="form-control" id="subject" name="subject" required aria-required="true" placeholder="Brief summary of your issue">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="description">
+                            Description <span class="text-danger" aria-hidden="true">*</span>
+                            <span class="sr-only">(required)</span>
+                        </label>
+                        <textarea class="form-control" id="description" name="description" rows="6" required aria-required="true" aria-describedby="description-hint" placeholder="Please describe your issue in detail"></textarea>
+                        <span class="form-hint" id="description-hint">Include relevant details such as error messages, steps to reproduce, and what you expected to happen.</span>
+                    </div>
+                </fieldset>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn--primary">Submit Ticket</button>
+                </div>
+            </form>
+        </div>
+    </article>
+</section>
+{% endblock %}

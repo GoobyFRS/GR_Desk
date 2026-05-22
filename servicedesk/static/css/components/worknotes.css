@@ -1,0 +1,81 @@
+/**
+ * Work Notes - Ticket work notes and comments
+ */
+
+.worknotes {
+    margin-top: var(--space-6);
+}
+
+.worknotes__title {
+    font-size: var(--text-base);
+    font-weight: var(--font-semibold);
+    margin-bottom: var(--space-4);
+}
+
+.worknote {
+    padding: var(--space-4);
+    margin-bottom: var(--space-3);
+    background-color: var(--color-neutral-50);
+    border-radius: var(--radius-md);
+    border-left: 3px solid var(--color-brand-primary);
+}
+
+.worknote:last-child {
+    margin-bottom: 0;
+}
+
+.worknote__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--color-neutral-500);
+}
+
+.worknote__author {
+    font-weight: var(--font-medium);
+    color: var(--color-neutral-700);
+}
+
+.worknote__time {
+    color: var(--color-neutral-400);
+}
+
+.worknote__content {
+    font-size: var(--text-sm);
+    color: var(--color-neutral-700);
+    white-space: pre-wrap;
+    line-height: var(--leading-relaxed);
+}
+
+/* Worknote variants */
+.worknote--system {
+    border-left-color: var(--color-neutral-300);
+    background-color: var(--color-neutral-100);
+}
+
+.worknote--system .worknote__author {
+    font-style: italic;
+}
+
+.worknote--internal {
+    border-left-color: var(--color-warning);
+}
+
+/* Legacy class support (hyphenated aliases) */
+.worknote-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--color-neutral-500);
+}
+
+.worknote-content {
+    font-size: var(--text-sm);
+    color: var(--color-neutral-700);
+    white-space: pre-wrap;
+    line-height: var(--leading-relaxed);
+}

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block description %}{{ branding.brand.tagline | default('IT Service Management System') }}{% endblock %}">
+    <meta name="theme-color" content="#2563eb">
+    <title>{% block title %}Home{% endblock %} — {{ branding.brand.name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Skip link for keyboard navigation -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <header class="navbar" role="banner">
+        <div class="navbar__brand">
+            <a href="{% block brand_url %}/{% endblock %}" aria-label="{{ branding.brand.name }} home">
+                {{ branding.brand.name }}
+            </a>
+        </div>
+        <nav class="navbar__nav" aria-label="Primary navigation">
+            {% block navbar %}{% endblock %}
+        </nav>
+        <div class="navbar__actions">
+            {% block navbar_actions %}{% endblock %}
+        </div>
+    </header>
+
+    <main id="main-content" class="container" role="main">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages" role="alert" aria-live="polite">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            <span>{{ message }}</span>
+                            <button type="button" class="alert__close" onclick="this.parentElement.remove()" aria-label="Dismiss message">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer" role="contentinfo">
+        <p>&copy; {{ branding.footer.year | default('2024') }} {{ branding.footer.copyright | default(branding.brand.name) }}. All rights reserved.</p>
+    </footer>
+
+    <!-- Live region for dynamic announcements -->
+    <div id="live-region" class="live-region" aria-live="polite" aria-atomic="true"></div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

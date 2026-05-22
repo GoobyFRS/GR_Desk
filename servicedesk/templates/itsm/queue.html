@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}{{ queue_name | capitalize }} Queue - {{ branding.brand.name }}{% endblock %}
+
+{% block brand_url %}/itsm/dashboard{% endblock %}
+
+{% block navbar %}
+{% if employee_navbar and employee_navbar.navbar %}
+    {% for item in employee_navbar.navbar.links %}
+        <div class="nav-dropdown">
+            <a href="{{ item.url }}" class="nav-link">{{ item.label }}</a>
+            {% if item.submenu %}
+                <div class="dropdown-content">
+                    {% for subitem in item.submenu %}
+                        <a href="{{ subitem.url }}">{{ subitem.label }}</a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+    {% if current_user.is_admin %}
+        {% for item in employee_navbar.navbar.admin_links %}
+            <div class="nav-dropdown">
+                <a href="{{ item.url }}" class="nav-link">{{ item.label }}</a>
+                {% if item.submenu %}
+                    <div class="dropdown-content">
+                        {% for subitem in item.submenu %}
+                            <a href="{{ subitem.url }}">{{ subitem.label }}</a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endif %}
+{% endblock %}
+
+{% block navbar_actions %}
+<span class="user-info">{{ current_user.display_name }}</span>
+<a href="{{ url_for('public.logout') }}" class="btn btn-outline">Logout</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>{{ queue_name | capitalize }} Queue</h1>
+    <p>Tickets assigned to {{ queue_name }}</p>
+</div>
+
+<div class="queue-nav">
+    <a href="{{ url_for('itsm.dashboard') }}" class="queue-link {% if queue_name == 'support' %}active{% endif %}">Support</a>
+    <a href="{{ url_for('itsm.queue', queue_name='escalation') }}" class="queue-link {% if queue_name == 'escalation' %}active{% endif %}">Escalation</a>
+    <a href="{{ url_for('itsm.queue', queue_name='billing') }}" class="queue-link {% if queue_name == 'billing' %}active{% endif %}">Billing</a>
+</div>
+
+<div class="card">
+    <table class="data-table">
+        <caption class="sr-only">{{ queue_name | capitalize }} queue tickets with status and priority information</caption>
+        <thead>
+            <tr>
+                <th scope="col">Ticket #</th>
+                <th scope="col">Subject</th>
+                <th scope="col">Requestor</th>
+                <th scope="col">Status</th>
+                <th scope="col">Impact</th>
+                <th scope="col">Urgency</th>
+                <th scope="col">Created</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ticket in tickets %}
+            <tr class="{% if ticket.requestor_vip_status %}vip-row{% endif %}">
+                <td>
+                    <a href="{{ url_for('itsm.console', ticket_number=ticket.ticket_number) }}">
+                        {{ ticket.ticket_number }}
+                    </a>
+                    {% if ticket.requestor_vip_status %}<span class="badge badge-vip">VIP</span>{% endif %}
+                </td>
+                <td>{{ ticket.ticket_subject | truncate(50) }}</td>
+                <td>{{ ticket.requestor_name }}</td>
+                <td><span class="badge badge-{{ ticket.ticket_status }}">{{ ticket.ticket_status | replace('_', ' ') | title }}</span></td>
+                <td><span class="badge badge-impact-{{ ticket.ticket_impact }}">{{ ticket.ticket_impact | capitalize }}</span></td>
+                <td><span class="badge badge-urgency-{{ ticket.ticket_urgency }}">{{ ticket.ticket_urgency | capitalize }}</span></td>
+                <td>{{ ticket.ticket_created_timestamp }}</td>
+                <td>
+                    <a href="{{ url_for('itsm.console', ticket_number=ticket.ticket_number) }}" class="btn btn-sm btn-primary">Open</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" class="empty-state">No tickets in this queue</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

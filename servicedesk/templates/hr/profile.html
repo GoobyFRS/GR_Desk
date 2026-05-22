@@ -1,0 +1,350 @@
+{% extends "base.html" %}
+
+{% block title %}{{ employee.full_name }} - HR - {{ branding.brand.name }}{% endblock %}
+
+{% block brand_url %}/hr/dashboard{% endblock %}
+
+{% block navbar %}
+{% if employee_navbar and employee_navbar.navbar %}
+    {% for item in employee_navbar.navbar.links %}
+        <div class="nav-dropdown">
+            <a href="{{ item.url }}" class="nav-link">{{ item.label }}</a>
+            {% if item.submenu %}
+                <div class="dropdown-content">
+                    {% for subitem in item.submenu %}
+                        <a href="{{ subitem.url }}">{{ subitem.label }}</a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+    {% if current_user.is_admin %}
+        {% for item in employee_navbar.navbar.admin_links %}
+            <div class="nav-dropdown">
+                <a href="{{ item.url }}" class="nav-link">{{ item.label }}</a>
+                {% if item.submenu %}
+                    <div class="dropdown-content">
+                        {% for subitem in item.submenu %}
+                            <a href="{{ subitem.url }}">{{ subitem.label }}</a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endif %}
+{% endblock %}
+
+{% block navbar_actions %}
+<span class="user-info">{{ current_user.display_name }}</span>
+<a href="{{ url_for('public.logout') }}" class="btn btn-outline">Logout</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>{{ employee.full_name }}</h1>
+        <p>{{ employee.employee_id }} - {{ employee.employee_title }}</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{{ url_for('hr.dashboard') }}" class="btn btn-outline">Back to List</a>
+    </div>
+</div>
+
+<form action="{{ url_for('hr.edit_profile', employee_id=employee.employee_id) }}" method="POST">
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Personal Information</h3>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="first_name">First Name</label>
+                    <input type="text" class="form-control" id="first_name" name="first_name" value="{{ employee.employee_first_name }}" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="last_name">Last Name</label>
+                    <input type="text" class="form-control" id="last_name" name="last_name" value="{{ employee.employee_last_name }}" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="preferred_name">Preferred Name</label>
+                    <input type="text" class="form-control" id="preferred_name" name="preferred_name" value="{{ employee.employee_preferred_name }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" value="{{ employee.employee_email }}" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="phone">Phone</label>
+                    <input type="tel" class="form-control" id="phone" name="phone" value="{{ employee.employee_phone }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="dob">Date of Birth</label>
+                    <input type="date" class="form-control" id="dob" name="dob" value="{{ employee.employee_dob or '' }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="timezone">Timezone</label>
+                    <select class="form-control" id="timezone" name="timezone">
+                        <option value="UTC" {% if employee.employee_timezone == 'UTC' %}selected{% endif %}>UTC</option>
+                        <option value="America/New_York" {% if employee.employee_timezone == 'America/New_York' %}selected{% endif %}>Eastern Time (US)</option>
+                        <option value="America/Chicago" {% if employee.employee_timezone == 'America/Chicago' %}selected{% endif %}>Central Time (US)</option>
+                        <option value="America/Denver" {% if employee.employee_timezone == 'America/Denver' %}selected{% endif %}>Mountain Time (US)</option>
+                        <option value="America/Los_Angeles" {% if employee.employee_timezone == 'America/Los_Angeles' %}selected{% endif %}>Pacific Time (US)</option>
+                        <option value="Europe/London" {% if employee.employee_timezone == 'Europe/London' %}selected{% endif %}>London (GMT)</option>
+                        <option value="Europe/Paris" {% if employee.employee_timezone == 'Europe/Paris' %}selected{% endif %}>Paris (CET)</option>
+                        <option value="Asia/Tokyo" {% if employee.employee_timezone == 'Asia/Tokyo' %}selected{% endif %}>Tokyo (JST)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="ingame_username">In-Game Username</label>
+                    <input type="text" class="form-control" id="ingame_username" name="ingame_username" value="{{ employee.employee_ingame_username or '' }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="chat_userid">Chat User ID</label>
+                    <input type="text" class="form-control" id="chat_userid" name="chat_userid" value="{{ employee.employee_chat_userid or '' }}" placeholder="Discord/Slack ID">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Employment Details</h3>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="title">Title</label>
+                    <select class="form-control" id="title" name="title">
+                        {% for title in titles %}
+                        <option value="{{ title }}" {% if employee.employee_title == title %}selected{% endif %}>{{ title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="access_role">Access Role</label>
+                    <select class="form-control" id="access_role" name="access_role">
+                        {% for role in access_roles %}
+                        <option value="{{ role }}" {% if employee.employee_access_role == role %}selected{% endif %}>{{ role | capitalize }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="assignment_queue">Assignment Queue</label>
+                    <select class="form-control" id="assignment_queue" name="assignment_queue">
+                        {% for queue in queues %}
+                        <option value="{{ queue }}" {% if employee.employee_assignment_queue == queue %}selected{% endif %}>{{ queue | capitalize }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="business_unit">Business Unit</label>
+                    <select class="form-control" id="business_unit" name="business_unit">
+                        {% for unit in business_units %}
+                        <option value="{{ unit }}" {% if employee.assigned_business_unit == unit %}selected{% endif %}>{{ unit }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="reports_to">Reports To (Employee ID)</label>
+                    <input type="text" class="form-control" id="reports_to" name="reports_to" value="{{ employee.reports_to or '' }}" placeholder="e.g., EM-0001">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="hire_date">Hire Date</label>
+                    <input type="date" class="form-control" id="hire_date" name="hire_date" value="{{ employee.employee_hire_date }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Employment Status</label>
+                    <input type="text" class="form-control" value="{{ employee.employment_status | capitalize }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Rehire Eligible</label>
+                    <input type="text" class="form-control" value="{{ employee.rehire_status | capitalize }}" readonly>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Compensation</h3>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="compensation_type">Compensation Type</label>
+                    <select class="form-control" id="compensation_type" name="compensation_type">
+                        <option value="hourly" {% if employee.employee_compensation_type == 'hourly' %}selected{% endif %}>Hourly</option>
+                        <option value="salary" {% if employee.employee_compensation_type == 'salary' %}selected{% endif %}>Salary</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="hourly_rate">Hourly Rate</label>
+                    <input type="number" class="form-control" id="hourly_rate" name="hourly_rate" step="0.01" min="0" value="{{ employee.employee_hourly_rate }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="base_salary">Annual Salary</label>
+                    <input type="number" class="form-control" id="base_salary" name="base_salary" step="0.01" min="0" value="{{ employee.employee_base_salary }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" id="salary_exempt" name="salary_exempt" {% if employee.employee_salary_exempt %}checked{% endif %}>
+                        <label for="salary_exempt">Salary Exempt (No Overtime)</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" id="bonus_eligible" name="bonus_eligible" {% if employee.is_bonus_eligible %}checked{% endif %}>
+                        <label for="bonus_eligible">Bonus Eligible</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="bonus_rate">Bonus Rate (%)</label>
+                    <input type="number" class="form-control" id="bonus_rate" name="bonus_rate" step="0.1" min="0" max="100" value="{{ employee.employee_bonus_rate }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="pto_available">PTO Hours Available</label>
+                    <input type="number" class="form-control" id="pto_available" name="pto_available" step="0.5" min="0" value="{{ employee.employee_total_pto_available }}">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Platform Access</h3>
+        </div>
+        <div class="card-body">
+            <fieldset class="fieldset--borderless">
+                <legend class="sr-only">Platform access permissions</legend>
+                <div class="form-row">
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" id="has_freshrss_access" name="has_freshrss_access" {% if employee.has_freshrss_access %}checked{% endif %}>
+                            <label for="has_freshrss_access">FreshRSS Access</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" id="has_jellyfin_access" name="has_jellyfin_access" {% if employee.has_jellyfin_access %}checked{% endif %}>
+                            <label for="has_jellyfin_access">Jellyfin Access</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" id="has_nextcloud_access" name="has_nextcloud_access" {% if employee.has_nextcloud_access %}checked{% endif %}>
+                            <label for="has_nextcloud_access">Nextcloud Access</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" id="has_tailnet_access" name="has_tailnet_access" {% if employee.has_tailnet_access %}checked{% endif %}>
+                            <label for="has_tailnet_access">Tailnet Access</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" id="has_gitea_access" name="has_gitea_access" {% if employee.has_gitea_access %}checked{% endif %}>
+                            <label for="has_gitea_access">Gitea Access</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" id="has_discord_access" name="has_discord_access" {% if employee.has_discord_access %}checked{% endif %}>
+                            <label for="has_discord_access">Discord Access</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" id="has_slack_access" name="has_slack_access" {% if employee.has_slack_access %}checked{% endif %}>
+                            <label for="has_slack_access">Slack Access</label>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Account Security</h3>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Account Status</label>
+                    <p class="mt-2">
+                        {% if employee.employee_account_locked %}
+                        <span class="badge badge-danger">Locked</span>
+                        {% else %}
+                        <span class="badge badge-success">Active</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Failed Login Attempts</label>
+                    <p class="mt-2">{{ employee.failed_login_attempts }}</p>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Last Login</label>
+                    <p class="mt-2">{{ employee.employee_last_login or 'Never' }}</p>
+                </div>
+            </div>
+            {% if employee.employee_account_locked %}
+            <div class="form-group">
+                <div class="form-check">
+                    <input type="checkbox" id="unlock_account" name="unlock_account">
+                    <label for="unlock_account">Unlock Account</label>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{{ url_for('hr.dashboard') }}" class="btn btn-outline">Cancel</a>
+    </div>
+</form>
+
+<div class="card mb-4 mt-4">
+    <div class="card-header">
+        <h3>Reset Password</h3>
+    </div>
+    <div class="card-body">
+        <form action="{{ url_for('hr.reset_password', employee_id=employee.employee_id) }}" method="POST">
+            <p class="text-muted mb-4">Set a new password for this employee. They will need to use the new password on their next login.</p>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="new_password">New Password <span class="text-danger">*</span></label>
+                    <input type="password" class="form-control" id="new_password" name="new_password" minlength="8" required>
+                    <small class="text-muted">Minimum 8 characters</small>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="confirm_password">Confirm Password <span class="text-danger">*</span></label>
+                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" minlength="8" required>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-warning">Reset Password</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

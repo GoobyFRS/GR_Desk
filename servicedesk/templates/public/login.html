@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Login - {{ branding.brand.name }}{% endblock %}
+
+{% block navbar %}
+<a href="{{ url_for('public.index') }}" class="nav-link">Home</a>
+{% endblock %}
+
+{% block navbar_actions %}
+<a href="{{ url_for('public.signup') }}" class="btn btn-outline">Sign Up</a>
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="card auth-card">
+        <h1>Employee Login</h1>
+        <p class="subtitle">Sign in to access the service desk</p>
+
+        <form method="POST" class="form">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email"
+                       value="{{ email | default('') }}" required autofocus
+                       autocomplete="email">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required
+                       autocomplete="current-password">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+                Sign In
+            </button>
+        </form>
+
+        <p class="auth-footer">
+            Customer? <a href="{{ url_for('public.signup') }}">Create an account</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
