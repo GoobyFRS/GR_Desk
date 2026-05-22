@@ -81,6 +81,7 @@ def _register_blueprints(app: FlaskApp) -> None:
     from servicedesk.blueprints.hr import hr_bp
     from servicedesk.blueprints.crm import crm_bp
     from servicedesk.blueprints.services import services_bp
+    from servicedesk.blueprints.changes import changes_bp
     from servicedesk.blueprints.reports import reports_bp
     from servicedesk.blueprints.api_ingest import api_ingest_bp
 
@@ -90,5 +91,6 @@ def _register_blueprints(app: FlaskApp) -> None:
     app.register_blueprint(hr_bp, url_prefix="/hr")
     app.register_blueprint(crm_bp, url_prefix="/crm")
     app.register_blueprint(services_bp, url_prefix="/services")
+    app.register_blueprint(changes_bp, url_prefix="/changes")
     app.register_blueprint(reports_bp, url_prefix="/reports")
     app.register_blueprint(api_ingest_bp, url_prefix="/api")

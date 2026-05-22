@@ -16,6 +16,7 @@ data:
   employees_file: "employees.yaml"
   customers_file: "customers.yaml"
   services_file: "services.yaml"
+  changes_file: "changes.yaml"
 
 tickets:
   queues:
@@ -74,6 +75,22 @@ services:
     - terminated
     - provisioning
   default_status: "provisioning"
+
+changes:
+  statuses:
+    - Draft
+    - Pending
+    - Approved
+    - Completed
+    - Rollback
+    - Cancelled
+  risks:
+    - None
+    - Low
+    - Medium
+    - High
+  default_status: "Draft"
+  default_risk: "None"
 
 session:
   lifetime_hours: 24

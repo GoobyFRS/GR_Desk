@@ -10,6 +10,7 @@ from flask import Blueprint, Response, current_app, render_template
 
 from servicedesk.auth.decorators import technician_required
 from servicedesk.config import load_navbar
+from servicedesk.models.change import Change
 from servicedesk.models.ticket import Ticket
 from servicedesk.storage.csv_export import export_tickets_csv
 from servicedesk.storage.yaml_store import YamlStore
@@ -220,6 +221,60 @@ def _calculate_resolution_stats(tickets: list[Ticket]) -> dict[str, float | int]
     }
 
 
+def _get_change_status_counts(changes: list[Change]) -> dict[str, int]:
+    """Count changes by status.
+
+    Args:
+        changes: List of changes to analyze.
+
+    Returns:
+        Dictionary mapping status names to counts.
+    """
+    assert changes is not None, "changes cannot be None"
+
+    counts: dict[str, int] = {
+        "Draft": 0,
+        "Pending": 0,
+        "Approved": 0,
+        "Completed": 0,
+        "Rollback": 0,
+        "Cancelled": 0,
+    }
+
+    for change in changes:
+        status = change.change_status
+        if status in counts:
+            counts[status] += 1
+
+    return counts
+
+
+def _get_change_risk_counts(changes: list[Change]) -> dict[str, int]:
+    """Count changes by risk level.
+
+    Args:
+        changes: List of changes to analyze.
+
+    Returns:
+        Dictionary mapping risk levels to counts.
+    """
+    assert changes is not None, "changes cannot be None"
+
+    counts: dict[str, int] = {
+        "None": 0,
+        "Low": 0,
+        "Medium": 0,
+        "High": 0,
+    }
+
+    for change in changes:
+        risk = change.change_risk
+        if risk in counts:
+            counts[risk] += 1
+
+    return counts
+
+
 # =============================================================================
 # Routes
 # =============================================================================
@@ -240,15 +295,16 @@ def index() -> str:
 @reports_bp.route("/dashboard")
 @technician_required
 def dashboard() -> str:
-    """Reports dashboard with ticket analytics.
+    """Reports dashboard with ticket and change analytics.
 
     Returns:
         Rendered reports dashboard template.
     """
     data_path = current_app.config["DATA_PATH"]
-    store: YamlStore[Ticket] = YamlStore(data_path / "tickets.yaml", Ticket)
 
-    tickets = store.get_all()
+    # Load tickets
+    ticket_store: YamlStore[Ticket] = YamlStore(data_path / "tickets.yaml", Ticket)
+    tickets = ticket_store.get_all()
     total_tickets = len(tickets)
 
     # Filter for active (unresolved) tickets
@@ -257,13 +313,25 @@ def dashboard() -> str:
         if t.ticket_status not in ("resolved", "cancelled")
     ]
 
-    # Gather statistics
+    # Gather ticket statistics
     status_counts = _get_status_counts(tickets)
     time_buckets = _get_time_bucket_counts(tickets)
     queue_counts = _get_queue_counts(active_tickets)
     impact_counts = _get_impact_counts(active_tickets)
     source_counts = _get_source_counts(tickets)
     resolution_stats = _calculate_resolution_stats(tickets)
+
+    # Load changes
+    change_store: YamlStore[Change] = YamlStore(data_path / "changes.yaml", Change)
+    changes = change_store.get_all()
+    total_changes = len(changes)
+
+    # Filter for active changes
+    active_changes = [c for c in changes if c.is_active]
+
+    # Gather change statistics
+    change_status_counts = _get_change_status_counts(changes)
+    change_risk_counts = _get_change_risk_counts(changes)
 
     return render_template(
         "reports/dashboard.html",
@@ -275,6 +343,10 @@ def dashboard() -> str:
         impact_counts=impact_counts,
         source_counts=source_counts,
         resolution_stats=resolution_stats,
+        total_changes=total_changes,
+        active_changes=len(active_changes),
+        change_status_counts=change_status_counts,
+        change_risk_counts=change_risk_counts,
     )
 
 

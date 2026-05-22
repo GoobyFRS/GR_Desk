@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block title %}{{ change.change_number }} - Changes - {{ branding.brand.name }}{% endblock %}
+
+{% block brand_url %}/changes/dashboard{% endblock %}
+
+{% block navbar %}
+{% if employee_navbar and employee_navbar.navbar %}
+    {% for item in employee_navbar.navbar.links %}
+        <div class="nav-dropdown">
+            <a href="{{ item.url }}" class="nav-link">{{ item.label }}</a>
+            {% if item.submenu %}
+                <div class="dropdown-content">
+                    {% for subitem in item.submenu %}
+                        <a href="{{ subitem.url }}">{{ subitem.label }}</a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+    {% if current_user.is_admin %}
+        {% for item in employee_navbar.navbar.admin_links %}
+            <div class="nav-dropdown">
+                <a href="{{ item.url }}" class="nav-link">{{ item.label }}</a>
+                {% if item.submenu %}
+                    <div class="dropdown-content">
+                        {% for subitem in item.submenu %}
+                            <a href="{{ subitem.url }}">{{ subitem.label }}</a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endif %}
+{% endblock %}
+
+{% block navbar_actions %}
+<span class="user-info">{{ current_user.display_name }}</span>
+<a href="{{ url_for('public.logout') }}" class="btn btn-outline">Logout</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>{{ change.change_number }}</h1>
+        <p>Created {{ change.change_created_timestamp }}</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{{ url_for('changes.dashboard') }}" class="btn btn-outline">Back to List</a>
+    </div>
+</div>
+
+<form action="{{ url_for('changes.edit_profile', change_number=change.change_number) }}" method="POST">
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Change Information</h3>
+            <span class="status status-{{ change.change_status | lower | replace(' ', '_') }}">{{ change.change_status }}</span>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="change_status">Status</label>
+                    <select class="form-control" id="change_status" name="change_status">
+                        {% for status in statuses %}
+                        <option value="{{ status }}" {% if change.change_status == status %}selected{% endif %}>{{ status }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if change.change_status == 'Draft' and not change.has_complete_plans %}
+                    <small class="text-muted">All plan fields must be filled to change status from Draft.</small>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="change_risk">Risk Level</label>
+                    <select class="form-control" id="change_risk" name="change_risk">
+                        {% for risk in risks %}
+                        <option value="{{ risk }}" {% if change.change_risk == risk %}selected{% endif %}>{{ risk }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="planned_start_timestamp">Planned Start</label>
+                    <input type="datetime-local" class="form-control" id="planned_start_timestamp" name="planned_start_timestamp" value="{{ change.planned_start_timestamp | replace('T', ' ') | replace(' ', 'T') if change.planned_start_timestamp else '' }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="planned_end_timestamp">Planned End</label>
+                    <input type="datetime-local" class="form-control" id="planned_end_timestamp" name="planned_end_timestamp" value="{{ change.planned_end_timestamp | replace('T', ' ') | replace(' ', 'T') if change.planned_end_timestamp else '' }}">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Linked Entities</h3>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="requestor_id">Requestor <span class="text-danger">*</span></label>
+                    <select class="form-control" id="requestor_id" name="requestor_id" required>
+                        <option value="">-- Select Requestor --</option>
+                        {% for employee in employees %}
+                        <option value="{{ employee.employee_id }}" {% if change.requestor_id == employee.employee_id %}selected{% endif %}>
+                            {{ employee.employee_id }} - {{ employee.full_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="implementor_id">Implementor</label>
+                    <select class="form-control" id="implementor_id" name="implementor_id">
+                        <option value="">-- Select Implementor --</option>
+                        {% for employee in employees %}
+                        <option value="{{ employee.employee_id }}" {% if change.implementor_id == employee.employee_id %}selected{% endif %}>
+                            {{ employee.employee_id }} - {{ employee.full_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="impacted_service_id">Impacted Service <span class="text-danger">*</span></label>
+                    <select class="form-control" id="impacted_service_id" name="impacted_service_id" required>
+                        <option value="">-- Select Service --</option>
+                        {% for service in services %}
+                        <option value="{{ service.service_id }}" {% if change.impacted_service_id == service.service_id %}selected{% endif %}>
+                            {{ service.service_id }} - {{ service.service_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            {% if requestor or implementor or impacted_service %}
+            <div class="profile-grid mt-4">
+                {% if requestor %}
+                <div class="profile-field">
+                    <span class="profile-field-label">Requestor Details</span>
+                    <span class="profile-field-value">
+                        <a href="{{ url_for('hr.profile', employee_id=requestor.employee_id) }}">{{ requestor.full_name }}</a>
+                    </span>
+                </div>
+                {% endif %}
+                {% if implementor %}
+                <div class="profile-field">
+                    <span class="profile-field-label">Implementor Details</span>
+                    <span class="profile-field-value">
+                        <a href="{{ url_for('hr.profile', employee_id=implementor.employee_id) }}">{{ implementor.full_name }}</a>
+                    </span>
+                </div>
+                {% endif %}
+                {% if impacted_service %}
+                <div class="profile-field">
+                    <span class="profile-field-label">Service Details</span>
+                    <span class="profile-field-value">
+                        <a href="{{ url_for('services.profile', service_id=impacted_service.service_id) }}">{{ impacted_service.service_name }}</a>
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Implementation Plan</h3>
+            {% if not change.implement_plan %}<span class="text-danger">(Required)</span>{% endif %}
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <label class="form-label" for="implement_plan">Describe the implementation steps</label>
+                <textarea class="form-control" id="implement_plan" name="implement_plan" rows="6">{{ change.implement_plan }}</textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Test/Acceptance Plan</h3>
+            {% if not change.test_accept_plan %}<span class="text-danger">(Required)</span>{% endif %}
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <label class="form-label" for="test_accept_plan">Describe how the change will be tested and validated</label>
+                <textarea class="form-control" id="test_accept_plan" name="test_accept_plan" rows="6">{{ change.test_accept_plan }}</textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Rollback Plan</h3>
+            {% if not change.rollback_plan %}<span class="text-danger">(Required)</span>{% endif %}
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <label class="form-label" for="rollback_plan">Describe the steps to rollback if the change fails</label>
+                <textarea class="form-control" id="rollback_plan" name="rollback_plan" rows="6">{{ change.rollback_plan }}</textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Timestamps</h3>
+        </div>
+        <div class="card-body">
+            <div class="profile-grid">
+                <div class="profile-field">
+                    <span class="profile-field-label">Created</span>
+                    <span class="profile-field-value">{{ change.change_created_timestamp }}</span>
+                </div>
+                <div class="profile-field">
+                    <span class="profile-field-label">Last Updated</span>
+                    <span class="profile-field-value">{{ change.change_updated_timestamp }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{{ url_for('changes.dashboard') }}" class="btn btn-outline">Cancel</a>
+    </div>
+</form>
+{% endblock %}

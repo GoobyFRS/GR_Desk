@@ -187,6 +187,52 @@ def edit_profile(employee_id: str) -> str:
     return redirect(url_for("hr.profile", employee_id=employee_id))  # type: ignore[return-value]
 
 
+@hr_bp.route("/profile/<employee_id>/reset-password", methods=["POST"])
+@admin_required
+def reset_password(employee_id: str) -> str:
+    """Reset employee password.
+
+    Args:
+        employee_id: The employee ID (EM-NNNN).
+
+    Returns:
+        Redirect to profile page.
+    """
+    data_path = current_app.config["DATA_PATH"]
+    store: YamlStore[Employee] = YamlStore(data_path / "employees.yaml", Employee)
+
+    employee = store.get_by_field("employee_id", employee_id)
+
+    if employee is None:
+        flash(f"Employee {employee_id} not found.", "danger")
+        return redirect(url_for("hr.dashboard"))  # type: ignore[return-value]
+
+    # Get password fields from form
+    new_password = request.form.get("new_password", "")
+    confirm_password = request.form.get("confirm_password", "")
+
+    # Validate password
+    errors: list[str] = []
+    if not new_password:
+        errors.append("New password is required.")
+    elif len(new_password) < 8:
+        errors.append("Password must be at least 8 characters.")
+    elif new_password != confirm_password:
+        errors.append("Passwords do not match.")
+
+    if errors:
+        for error in errors:
+            flash(error, "danger")
+        return redirect(url_for("hr.profile", employee_id=employee_id))  # type: ignore[return-value]
+
+    # Update password
+    employee.password_hash = hash_password(new_password)
+    store.save(employee)
+
+    flash(f"Password reset successfully for {employee.full_name}.", "success")
+    return redirect(url_for("hr.profile", employee_id=employee_id))  # type: ignore[return-value]
+
+
 @hr_bp.route("/submit-new", methods=["GET", "POST"])
 @admin_required
 def submit_new() -> str:

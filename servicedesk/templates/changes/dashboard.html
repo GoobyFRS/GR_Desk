@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Changes Dashboard - {{ branding.brand.name }}{% endblock %}
+
+{% block brand_url %}/changes/dashboard{% endblock %}
+
+{% block navbar %}
+{% if employee_navbar and employee_navbar.navbar %}
+    {% for item in employee_navbar.navbar.links %}
+        <div class="nav-dropdown">
+            <a href="{{ item.url }}" class="nav-link">{{ item.label }}</a>
+            {% if item.submenu %}
+                <div class="dropdown-content">
+                    {% for subitem in item.submenu %}
+                        <a href="{{ subitem.url }}">{{ subitem.label }}</a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+    {% if current_user.is_admin %}
+        {% for item in employee_navbar.navbar.admin_links %}
+            <div class="nav-dropdown">
+                <a href="{{ item.url }}" class="nav-link">{{ item.label }}</a>
+                {% if item.submenu %}
+                    <div class="dropdown-content">
+                        {% for subitem in item.submenu %}
+                            <a href="{{ subitem.url }}">{{ subitem.label }}</a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endif %}
+{% endblock %}
+
+{% block navbar_actions %}
+<span class="user-info">{{ current_user.display_name }}</span>
+<a href="{{ url_for('public.logout') }}" class="btn btn-outline">Logout</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Change Management</h1>
+        <p>View and manage change requests</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{{ url_for('changes.submit_new') }}" class="btn btn-primary">Submit New Change</a>
+        <a href="{{ url_for('changes.export') }}" class="btn btn-outline">Export CSV</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-wrapper">
+        <table>
+            <caption class="sr-only">Change requests with status and risk information</caption>
+            <thead>
+                <tr>
+                    <th scope="col" data-sort="text">Change Number</th>
+                    <th scope="col" data-sort="text">Status</th>
+                    <th scope="col" data-sort="text">Requestor</th>
+                    <th scope="col" data-sort="text">Impacted Service</th>
+                    <th scope="col" data-sort="text">Risk</th>
+                    <th scope="col" data-sort="text">Planned Start</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for change in changes %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('changes.profile', change_number=change.change_number) }}">
+                            {{ change.change_number }}
+                        </a>
+                    </td>
+                    <td>
+                        <span class="status status-{{ change.change_status | lower | replace(' ', '_') }}">
+                            {{ change.change_status }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if change.requestor_id %}
+                        <a href="{{ url_for('hr.profile', employee_id=change.requestor_id) }}">{{ change.requestor_id }}</a>
+                        {% else %}
+                        <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if change.impacted_service_id %}
+                        <a href="{{ url_for('services.profile', service_id=change.impacted_service_id) }}">{{ change.impacted_service_id }}</a>
+                        {% else %}
+                        <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="status status-risk-{{ change.change_risk | lower }}">
+                            {{ change.change_risk }}
+                        </span>
+                    </td>
+                    <td>{{ change.planned_start_timestamp or '-' }}</td>
+                    <td>
+                        <a href="{{ url_for('changes.profile', change_number=change.change_number) }}" class="btn btn-sm btn-primary">View</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted" style="padding: 2rem;">
+                        No changes found. <a href="{{ url_for('changes.submit_new') }}">Submit the first change</a>.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
