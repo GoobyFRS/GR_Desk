@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from servicedesk.models.change import Change
     from servicedesk.models.customer import Customer
     from servicedesk.models.employee import Employee
     from servicedesk.models.service import Service
@@ -107,6 +108,29 @@ def sync_service_counter(services: list[Service]) -> None:
     Service.set_counter(max_num)
 
 
+def sync_change_counter(changes: list[Change]) -> None:
+    """Synchronize change counter from existing changes.
+
+    Parses change numbers (CHG-YYYY-NNNN) to find the highest
+    sequence number and updates the Change class counter.
+
+    Args:
+        changes: List of existing changes.
+    """
+    from servicedesk.models.change import Change
+
+    if not changes:
+        return
+
+    max_num: int = 0
+    for change in changes:
+        num = _parse_change_number(change.change_number)
+        if num > max_num:
+            max_num = num
+
+    Change.set_counter(max_num)
+
+
 def _parse_ticket_number(ticket_number: str) -> int:
     """Parse sequence number from ticket number.
 
@@ -175,5 +199,23 @@ def _parse_service_id(service_id: str) -> int:
         return 0
     try:
         return int(parts[1])
+    except ValueError:
+        return 0
+
+
+def _parse_change_number(change_number: str) -> int:
+    """Parse sequence number from change number.
+
+    Args:
+        change_number: Change number in format CHG-YYYY-NNNN.
+
+    Returns:
+        Sequence number, or 0 if parsing fails.
+    """
+    parts = change_number.split("-")
+    if len(parts) != 3:
+        return 0
+    try:
+        return int(parts[2])
     except ValueError:
         return 0

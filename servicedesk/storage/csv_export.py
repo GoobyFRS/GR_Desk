@@ -7,6 +7,7 @@ import io
 from typing import TYPE_CHECKING, Callable, TypeVar
 
 if TYPE_CHECKING:
+    from servicedesk.models.change import Change
     from servicedesk.models.customer import Customer
     from servicedesk.models.employee import Employee
     from servicedesk.models.service import Service
@@ -121,4 +122,20 @@ def export_services_csv(services: list[Service]) -> str:
         services,
         lambda s: s.to_dict(),
         exclude_fields=["service_rcon_pwd"],
+    )
+
+
+def export_changes_csv(changes: list[Change]) -> str:
+    """Export changes to CSV.
+
+    Args:
+        changes: List of Change objects.
+
+    Returns:
+        CSV formatted string.
+    """
+    return export_to_csv(
+        changes,
+        lambda c: c.to_dict(),
+        exclude_fields=[],
     )

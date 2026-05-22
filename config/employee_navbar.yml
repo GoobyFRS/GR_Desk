@@ -18,6 +18,10 @@ navbar:
       url: "/services/dashboard"
       icon: "server"
 
+    - label: "Changes"
+      url: "/changes/dashboard"
+      icon: "refresh"
+
     - label: "Reports"
       url: "/reports/dashboard"
       icon: "chart"

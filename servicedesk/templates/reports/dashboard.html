@@ -281,4 +281,99 @@
         </div>
     </div>
 </div>
+
+<!-- Change Management Section -->
+<h2 class="mt-6 mb-4">Change Management</h2>
+
+<section class="stats-grid mb-6" aria-label="Change management overview">
+    <div class="stat-card">
+        <div class="stat-card-title">Total Changes</div>
+        <div class="stat-card-value">{{ total_changes }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-title">Active Changes</div>
+        <div class="stat-card-value">{{ active_changes }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-title">Completed</div>
+        <div class="stat-card-value">{{ change_status_counts.Completed }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-title">High Risk</div>
+        <div class="stat-card-value">{{ change_risk_counts.High }}</div>
+    </div>
+</section>
+
+<div class="grid grid-2">
+    <!-- Change Status Breakdown -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Changes by Status</h3>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <caption class="sr-only">Change counts grouped by status</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Status</th>
+                        <th scope="col">Count</th>
+                        <th scope="col">Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for status, count in change_status_counts.items() %}
+                    <tr>
+                        <td>
+                            <span class="status status-{{ status | lower }}">{{ status }}</span>
+                        </td>
+                        <td>{{ count }}</td>
+                        <td>{% if total_changes > 0 %}{{ "%.1f"|format(count / total_changes * 100) }}%{% else %}0%{% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Change Risk Breakdown -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Changes by Risk Level</h3>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <caption class="sr-only">Change counts grouped by risk level</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Risk Level</th>
+                        <th scope="col">Count</th>
+                        <th scope="col">Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="status status-risk-high">High</span></td>
+                        <td>{{ change_risk_counts.High }}</td>
+                        <td>{% if total_changes > 0 %}{{ "%.1f"|format(change_risk_counts.High / total_changes * 100) }}%{% else %}0%{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <td><span class="status status-risk-medium">Medium</span></td>
+                        <td>{{ change_risk_counts.Medium }}</td>
+                        <td>{% if total_changes > 0 %}{{ "%.1f"|format(change_risk_counts.Medium / total_changes * 100) }}%{% else %}0%{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <td><span class="status status-risk-low">Low</span></td>
+                        <td>{{ change_risk_counts.Low }}</td>
+                        <td>{% if total_changes > 0 %}{{ "%.1f"|format(change_risk_counts.Low / total_changes * 100) }}%{% else %}0%{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <td><span class="status status-risk-none">None</span></td>
+                        <td>{{ change_risk_counts.None }}</td>
+                        <td>{% if total_changes > 0 %}{{ "%.1f"|format(change_risk_counts.None / total_changes * 100) }}%{% else %}0%{% endif %}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 {% endblock %}
